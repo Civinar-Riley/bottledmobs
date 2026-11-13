@@ -1,0 +1,26 @@
+{
+  "parent": "bottledmobs:first_bottle",
+  "display": {
+    "icon": {
+      "id": "minecraft:water_bucket"
+    },
+    "title": {
+      "translate": "advancements.bottledmobs.aquarium.title"
+    },
+    "description": {
+      "translate": "advancements.bottledmobs.aquarium.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "display": {
+      "trigger": "bottledmobs:collect",
+      "conditions": {
+        "action": "aquarium"
+      }
+    }
+  }
+}

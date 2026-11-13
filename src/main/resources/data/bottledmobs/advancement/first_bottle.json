@@ -1,0 +1,26 @@
+{
+  "display": {
+    "icon": {
+      "id": "bottledmobs:bottled_mob"
+    },
+    "title": {
+      "translate": "advancements.bottledmobs.first_bottle.title"
+    },
+    "description": {
+      "translate": "advancements.bottledmobs.first_bottle.description"
+    },
+    "background": "bottledmobs:textures/gui/advancements/backgrounds/jar.png",
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "capture": {
+      "trigger": "bottledmobs:collect",
+      "conditions": {
+        "action": "capture"
+      }
+    }
+  }
+}

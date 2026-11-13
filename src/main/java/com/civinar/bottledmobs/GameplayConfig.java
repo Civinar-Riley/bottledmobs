@@ -12,6 +12,7 @@ public final class GameplayConfig {
     public static final ModConfigSpec.DoubleValue MAX_HEIGHT;
     public static final ModConfigSpec.DoubleValue HEIGHT_STEP;
     public static final ModConfigSpec.BooleanValue REDSTONE_RELEASE;
+    public static final ModConfigSpec.BooleanValue CAPTURE_PASSENGER_STACKS;
 
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
@@ -40,6 +41,9 @@ public final class GameplayConfig {
         REDSTONE_RELEASE = builder
                 .comment("Release the captured mob when a redstone signal is applied.")
                 .define("redstoneRelease", false);
+        CAPTURE_PASSENGER_STACKS = builder
+                .comment("Capture a mob together with the creatures riding it.")
+                .define("capturePassengerStacks", true);
         builder.pop();
         SPEC = builder.build();
     }
@@ -70,6 +74,10 @@ public final class GameplayConfig {
 
     public static boolean redstoneRelease() {
         return REDSTONE_RELEASE.get();
+    }
+
+    public static boolean capturePassengerStacks() {
+        return CAPTURE_PASSENGER_STACKS.get();
     }
 
     private GameplayConfig() {

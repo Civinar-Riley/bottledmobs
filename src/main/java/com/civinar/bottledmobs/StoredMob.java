@@ -7,9 +7,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.entity.EntityType;
-
-import java.util.Optional;
 
 /**
  * The captured mob carried by a bottle item.
@@ -51,20 +48,11 @@ public record StoredMob(CompoundTag entityData, String entityId, String customNa
 
     /**
      * Resolves the name against the client's current language instead of freezing
-     * the name that was visible when the mob was captured.
+     * the name that was visible when the mob was captured. Groups compose the root
+     * name with each rider's name.
      */
     public Component displayName() {
-        if (!this.customName.isEmpty()) {
-            return Component.literal(this.customName);
-        }
-        Optional<EntityType<?>> type = EntityType.by(this.entityData);
-        if (type.isPresent()) {
-            return Component.translatable(type.get().getDescriptionId());
-        }
-        if (!this.fallbackName.isEmpty()) {
-            return Component.literal(this.fallbackName);
-        }
-        return Component.translatable("tooltip.bottledmobs.unknown");
+        return MobInfo.groupName(this);
     }
 
     public CompoundTag save() {

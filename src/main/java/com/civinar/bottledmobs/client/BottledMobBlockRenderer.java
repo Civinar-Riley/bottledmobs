@@ -15,7 +15,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -72,7 +71,7 @@ public class BottledMobBlockRenderer implements BlockEntityRenderer<BottledMobBl
             float scale = jar.getScale();
             pose.scale(scale, scale, scale);
             pose.mulPose(FACING_ROTATIONS.get(jar.getFacing()));
-            this.entityRenderer.render(entity, 0.0, 0.0, 0.0, 0.0F, partialTick, pose, buffer, light);
+            JarEntityRenderer.render(entity, this.entityRenderer, pose, buffer, light, partialTick);
             pose.popPose();
         }
 
@@ -129,16 +128,7 @@ public class BottledMobBlockRenderer implements BlockEntityRenderer<BottledMobBl
         if (entity == null) {
             return null;
         }
-        entity.setCustomName(null);
-        entity.setCustomNameVisible(false);
-        entity.setYRot(0.0F);
-        entity.setXRot(0.0F);
-        if (entity instanceof LivingEntity living) {
-            living.yHeadRot = 0.0F;
-            living.yBodyRot = 0.0F;
-            living.yHeadRotO = 0.0F;
-            living.yBodyRotO = 0.0F;
-        }
+        JarEntityRenderer.prepare(entity);
         this.cache.put(jar, new CachedEntity(jar.getRevision(), entity));
         return entity;
     }
@@ -149,16 +139,9 @@ public class BottledMobBlockRenderer implements BlockEntityRenderer<BottledMobBl
             return;
         }
 
-        entity.tickCount++;
+        JarEntityRenderer.tick(entity);
         float yaw = (level.getGameTime() % 360000L + partialTick) * SPIN_SPEED;
-        entity.yRotO = entity.getYRot();
-        entity.setYRot(yaw);
-        if (entity instanceof LivingEntity living) {
-            living.yHeadRotO = living.yHeadRot;
-            living.yBodyRotO = living.yBodyRot;
-            living.yHeadRot = yaw;
-            living.yBodyRot = yaw;
-        }
+        JarEntityRenderer.applyYaw(entity, yaw);
     }
 
     private record CachedEntity(int revision, Entity entity) {

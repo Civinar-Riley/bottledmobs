@@ -1,8 +1,11 @@
 package com.civinar.bottledmobs;
 
+import com.civinar.bottledmobs.advancement.BottledMobsAchievements;
+import com.civinar.bottledmobs.advancement.BottledMobsTrigger;
 import com.civinar.bottledmobs.client.ClientSetup;
 import com.civinar.bottledmobs.client.JarSettingsClientHandler;
 import com.mojang.logging.LogUtils;
+import net.minecraft.advancements.CriterionTrigger;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -25,6 +28,7 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.neoforge.registries.DeferredBlock;
@@ -44,12 +48,21 @@ public final class BottledMobs {
     public static final TagKey<EntityType<?>> AQUATIC_DISPLAY =
             TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(MOD_ID, "aquatic_display"));
 
+    public static final TagKey<EntityType<?>> UNCAPTURABLE =
+            TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(MOD_ID, "uncapturable"));
+
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MOD_ID);
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MOD_ID);
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
             DeferredRegister.create(BuiltInRegistries.BLOCK_ENTITY_TYPE, MOD_ID);
     public static final DeferredRegister.DataComponents DATA_COMPONENTS =
             DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, MOD_ID);
+
+    public static final DeferredRegister<CriterionTrigger<?>> CRITERIA =
+            DeferredRegister.create(Registries.TRIGGER_TYPE, MOD_ID);
+
+    public static final DeferredHolder<CriterionTrigger<?>, BottledMobsTrigger> COLLECT_TRIGGER =
+            CRITERIA.register("collect", () -> BottledMobsTrigger.INSTANCE);
 
     public static final DeferredBlock<Block> BOTTLED_MOB = BLOCKS.register("bottled_mob",
             () -> new BottledMobBlock(BlockBehaviour.Properties.of()
@@ -117,9 +130,12 @@ public final class BottledMobs {
         ITEMS.register(modBus);
         BLOCK_ENTITIES.register(modBus);
         DATA_COMPONENTS.register(modBus);
+        CRITERIA.register(modBus);
+        BottledMobsAchievements.register(modBus);
 
         modBus.addListener(this::addCreativeTabItems);
         modBus.addListener(this::registerPayloads);
+        NeoForge.EVENT_BUS.addListener(BottledMobsCommand::register);
 
         VariantRules.loadBuiltin();
         GlowRules.loadBuiltin();

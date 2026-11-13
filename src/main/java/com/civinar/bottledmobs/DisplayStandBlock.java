@@ -1,8 +1,12 @@
 package com.civinar.bottledmobs;
 
+import com.civinar.bottledmobs.advancement.BottledMobsAchievements;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -96,6 +100,17 @@ public class DisplayStandBlock extends BaseEntityBlock {
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new DisplayStandBlockEntity(pos, state);
+    }
+
+    @Override
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer,
+                            ItemStack stack) {
+        if (!level.isClientSide && placer instanceof ServerPlayer serverPlayer) {
+            BlockPos above = pos.above();
+            if (level.getBlockEntity(above) instanceof BottledMobBlockEntity jar && !jar.getMob().isEmpty()) {
+                BottledMobsAchievements.onDisplay(serverPlayer, jar);
+            }
+        }
     }
 
     @Override

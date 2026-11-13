@@ -13,7 +13,6 @@ import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -58,7 +57,7 @@ public class BottledMobItemRenderer extends BlockEntityWithoutLevelRenderer {
             pose.scale(BottledMobBlockEntity.DEFAULT_SCALE, BottledMobBlockEntity.DEFAULT_SCALE,
                     BottledMobBlockEntity.DEFAULT_SCALE);
             pose.mulPose(ITEM_ROTATION);
-            this.entityRenderer.render(entity, 0.0, 0.0, 0.0, 0.0F, 0.0F, pose, buffer, light);
+            JarEntityRenderer.render(entity, this.entityRenderer, pose, buffer, light, 0.0F);
             pose.popPose();
         }
 
@@ -92,16 +91,7 @@ public class BottledMobItemRenderer extends BlockEntityWithoutLevelRenderer {
         if (entity == null) {
             return null;
         }
-        entity.setCustomName(null);
-        entity.setCustomNameVisible(false);
-        entity.setYRot(0.0F);
-        entity.setXRot(0.0F);
-        if (entity instanceof LivingEntity living) {
-            living.yHeadRot = 0.0F;
-            living.yBodyRot = 0.0F;
-            living.yHeadRotO = 0.0F;
-            living.yBodyRotO = 0.0F;
-        }
+        JarEntityRenderer.prepare(entity);
         this.cache.put(mob, entity);
         return entity;
     }

@@ -11,6 +11,12 @@ group = mod_group_id
 
 repositories {
     mavenLocal()
+    maven {
+        url = 'https://api.modrinth.com/maven'
+        content {
+            includeGroup 'maven.modrinth'
+        }
+    }
 }
 
 base {
@@ -52,6 +58,8 @@ configurations {
 
 dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
+    // Compile-time only: the Jade API is optional at runtime and is not bundled.
+    compileOnly "maven.modrinth:jade:${jade_version}"
 }
 
 tasks.withType(ProcessResources).configureEach {

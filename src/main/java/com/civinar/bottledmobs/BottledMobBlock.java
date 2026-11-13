@@ -1,5 +1,6 @@
 package com.civinar.bottledmobs;
 
+import com.civinar.bottledmobs.advancement.BottledMobsAchievements;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -8,6 +9,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.Filterable;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -135,6 +137,9 @@ public class BottledMobBlock extends BaseEntityBlock {
             if (!level.isClientSide && settings != null) {
                 jar.applySettings(settings);
             }
+            if (!level.isClientSide && placer instanceof ServerPlayer serverPlayer) {
+                BottledMobsAchievements.onDisplay(serverPlayer, jar);
+            }
         }
     }
 
@@ -186,6 +191,7 @@ public class BottledMobBlock extends BaseEntityBlock {
                 jar.rotate();
                 playSound(level, pos, SoundEvents.ITEM_FRAME_ROTATE_ITEM, 1.0F);
             }
+            fireDisplayAchievement(player, jar);
             return ItemInteractionResult.SUCCESS;
         }
 
@@ -199,7 +205,7 @@ public class BottledMobBlock extends BaseEntityBlock {
                         Component.translatable("message.bottledmobs.name_tag_empty"), true);
             } else {
                 jar.renameMob(customName.getString());
-                if (!player.getAbilities().instabuild) {
+                if (!player.isCreative()) {
                     stack.shrink(1);
                 }
                 playSound(level, pos, SoundEvents.ITEM_FRAME_ADD_ITEM, 1.0F);
@@ -214,6 +220,7 @@ public class BottledMobBlock extends BaseEntityBlock {
                 stack.set(BottledMobs.STORED_MOB.get(), StoredMob.EMPTY);
                 stack.remove(BottledMobs.JAR_SETTINGS.get());
                 playSound(level, pos, SoundEvents.BOTTLE_FILL, 1.0F);
+                fireDisplayAchievement(player, jar);
             } else {
                 jar.resetShell();
                 playSound(level, pos, SoundEvents.ITEM_FRAME_REMOVE_ITEM, 1.0F);
@@ -257,7 +264,14 @@ public class BottledMobBlock extends BaseEntityBlock {
             playSound(level, pos, SoundEvents.BOOK_PAGE_TURN, 1.0F);
         }
 
+        fireDisplayAchievement(player, jar);
         return ItemInteractionResult.SUCCESS;
+    }
+
+    private static void fireDisplayAchievement(Player player, BottledMobBlockEntity jar) {
+        if (player instanceof ServerPlayer serverPlayer) {
+            BottledMobsAchievements.onDisplay(serverPlayer, jar);
+        }
     }
 
     private static void playSound(Level level, BlockPos pos, SoundEvent sound, float pitch) {

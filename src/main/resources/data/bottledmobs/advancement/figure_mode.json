@@ -1,0 +1,26 @@
+{
+  "parent": "bottledmobs:first_bottle",
+  "display": {
+    "icon": {
+      "id": "minecraft:armor_stand"
+    },
+    "title": {
+      "translate": "advancements.bottledmobs.figure_mode.title"
+    },
+    "description": {
+      "translate": "advancements.bottledmobs.figure_mode.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "display": {
+      "trigger": "bottledmobs:collect",
+      "conditions": {
+        "action": "figure"
+      }
+    }
+  }
+}

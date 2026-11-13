@@ -41,9 +41,7 @@ public class DisplayStandRenderer implements BlockEntityRenderer<DisplayStandBlo
 
         BlockState state = stand.getBlockState();
         Direction facing = state.getValue(DisplayStandBlock.FACING);
-        String title = mob.customName().isEmpty()
-                ? MobInfo.speciesName(mob).getString()
-                : mob.customName();
+        String title = mob.displayName().getString();
         List<String> details = new ArrayList<>();
         if (!mob.customName().isEmpty()) {
             details.add(MobInfo.speciesName(mob).getString());
@@ -51,6 +49,9 @@ public class DisplayStandRenderer implements BlockEntityRenderer<DisplayStandBlo
         MobInfo.variantName(mob).ifPresent(variant -> details.add(variant.getString()));
         if (MobInfo.isBaby(mob)) {
             details.add(Component.translatable("tooltip.bottledmobs.baby").getString());
+        }
+        if (MobInfo.isGroup(mob)) {
+            details.add(Component.translatable("tooltip.bottledmobs.group", MobInfo.groupSize(mob)).getString());
         }
 
         double x = 0.5 + facing.getStepX() * 0.39;

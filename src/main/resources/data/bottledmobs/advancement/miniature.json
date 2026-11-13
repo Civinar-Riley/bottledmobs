@@ -1,0 +1,26 @@
+{
+  "parent": "bottledmobs:first_bottle",
+  "display": {
+    "icon": {
+      "id": "minecraft:small_amethyst_bud"
+    },
+    "title": {
+      "translate": "advancements.bottledmobs.miniature.title"
+    },
+    "description": {
+      "translate": "advancements.bottledmobs.miniature.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "display": {
+      "trigger": "bottledmobs:collect",
+      "conditions": {
+        "action": "miniature"
+      }
+    }
+  }
+}

@@ -6,7 +6,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
-import java.util.Optional;
 
 public final class MobNbt {
 
@@ -18,21 +17,34 @@ public final class MobNbt {
         if (tag == null || tag.isEmpty()) {
             return null;
         }
-        Optional<EntityType<?>> type = EntityType.by(tag);
-        if (type.isEmpty()) {
-            return null;
-        }
-        Entity entity = type.get().create(level);
-        if (entity == null) {
+        if (EntityType.by(tag).isEmpty()) {
             return null;
         }
         try {
-            entity.load(tag);
+            // loadEntityRecursive restores the root together with every passenger,
+            // wiring each rider onto its vehicle so the group displays and releases intact.
+            return EntityType.loadEntityRecursive(tag, level, entity -> entity);
         } catch (Exception exception) {
             BottledMobs.LOGGER.warn("Could not restore a captured mob from its stored data", exception);
             return null;
         }
-        return entity;
+    }
+
+    /**
+     * Restores only the root creature, ignoring any stored passengers. Used for
+     * read-only inspection (comparator signal) so mounting side effects do not fire.
+     */
+    @Nullable
+    public static Entity createSingle(CompoundTag tag, Level level) {
+        if (tag == null || tag.isEmpty()) {
+            return null;
+        }
+        try {
+            return EntityType.create(tag, level).orElse(null);
+        } catch (Exception exception) {
+            BottledMobs.LOGGER.warn("Could not restore a captured mob from its stored data", exception);
+            return null;
+        }
     }
 
     public static CompoundTag save(Entity entity) {

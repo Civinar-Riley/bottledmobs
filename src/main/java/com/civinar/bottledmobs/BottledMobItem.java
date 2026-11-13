@@ -1,5 +1,6 @@
 package com.civinar.bottledmobs;
 
+import com.civinar.bottledmobs.advancement.BottledMobsAchievements;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.particles.ParticleTypes;
@@ -8,11 +9,13 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
@@ -24,6 +27,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class BottledMobItem extends BlockItem {
@@ -100,21 +104,34 @@ public class BottledMobItem extends BlockItem {
             return false;
         }
 
-        if (target.getVehicle() != null || !target.getPassengers().isEmpty()) {
-            if (!player.level().isClientSide) {
-                player.displayClientMessage(
-                        Component.translatable("message.bottledmobs.cannot_capture_riding"), true);
-            }
-            return true;
-        }
-
+        // The server owns the capture decision; the client only consumes the interaction.
         if (target.level().isClientSide) {
             return true;
         }
 
         Level level = target.level();
+        if (target.getVehicle() != null) {
+            player.displayClientMessage(
+                    Component.translatable("message.bottledmobs.cannot_capture_riding"), true);
+            return true;
+        }
+
+        boolean group = !target.getPassengers().isEmpty();
+        if (group && !GameplayConfig.capturePassengerStacks()) {
+            player.displayClientMessage(
+                    Component.translatable("message.bottledmobs.cannot_capture_riding"), true);
+            return true;
+        }
+
+        if (MobInfo.hasTag(target, BottledMobs.UNCAPTURABLE)) {
+            player.displayClientMessage(
+                    Component.translatable("message.bottledmobs.uncapturable"), true);
+            return true;
+        }
+
         CompoundTag data = MobNbt.save(target);
-        String entityId = BuiltInRegistries.ENTITY_TYPE.getKey(target.getType()).toString();
+        EntityType<?> capturedType = target.getType();
+        String entityId = BuiltInRegistries.ENTITY_TYPE.getKey(capturedType).toString();
         String customName = target.hasCustomName() && target.getCustomName() != null
                 ? target.getCustomName().getString()
                 : "";
@@ -130,7 +147,15 @@ public class BottledMobItem extends BlockItem {
                     target.getX(), target.getY() + target.getBbHeight() * 0.5, target.getZ(),
                     8, 0.25, 0.5, 0.25, 0.01);
         }
-        target.discard();
+        // Remove the riders first, then the root, so nothing is left behind or duplicated.
+        List<Entity> members = new ArrayList<>(target.getSelfAndPassengers().toList());
+        for (int index = members.size() - 1; index >= 0; index--) {
+            members.get(index).discard();
+        }
+
+        if (player instanceof ServerPlayer serverPlayer) {
+            BottledMobsAchievements.onCapture(serverPlayer, capturedType, group);
+        }
         return true;
     }
 
@@ -163,6 +188,10 @@ public class BottledMobItem extends BlockItem {
         } else {
             tooltip.add(Component.translatable("tooltip.bottledmobs.contains", mob.displayName())
                     .withStyle(ChatFormatting.AQUA));
+            if (MobInfo.isGroup(mob)) {
+                tooltip.add(Component.translatable("tooltip.bottledmobs.group", MobInfo.groupSize(mob))
+                        .withStyle(ChatFormatting.GRAY));
+            }
             if (!mob.customName().isEmpty()) {
                 tooltip.add(Component.translatable("tooltip.bottledmobs.species", MobInfo.speciesName(mob))
                         .withStyle(ChatFormatting.GRAY));

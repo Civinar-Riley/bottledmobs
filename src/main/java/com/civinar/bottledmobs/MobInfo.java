@@ -4,6 +4,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 
 import java.util.ArrayList;
@@ -57,6 +60,105 @@ public final class MobInfo {
         List<CompoundTag> result = new ArrayList<>();
         collect(data, result);
         return result;
+    }
+
+    /**
+     * Number of creatures stored in the jar, counting the root and every rider.
+     */
+    public static int groupSize(StoredMob mob) {
+        return selfAndPassengers(mob.entityData()).size();
+    }
+
+    /**
+     * Whether the stored group contains more than the root creature.
+     */
+    public static boolean isGroup(StoredMob mob) {
+        return groupSize(mob) > 1;
+    }
+
+    /**
+     * Whether any member of the stored group carries the given entity type tag.
+     * Used for the server-side {@code uncapturable} gate.
+     */
+    public static boolean hasTag(StoredMob mob, TagKey<EntityType<?>> tag) {
+        for (CompoundTag part : selfAndPassengers(mob.entityData())) {
+            Optional<EntityType<?>> type = EntityType.by(part);
+            if (type.isPresent() && type.get().is(tag)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Whether any creature in a live group (root and riders) carries the given
+     * entity type tag. Used by the capture gate before the group is serialised.
+     */
+    public static boolean hasTag(Entity root, TagKey<EntityType<?>> tag) {
+        for (Entity part : root.getSelfAndPassengers().toList()) {
+            if (part.getType().is(tag)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Display name for a stored group. The root keeps its own name (custom name or
+     * species), then each rider is appended after a separator. Chicken jockeys and
+     * spider jockeys use a dedicated name instead of the generic composition.
+     */
+    public static Component groupName(StoredMob mob) {
+        Optional<Component> special = jockeyName(mob);
+        if (special.isPresent()) {
+            return special.get();
+        }
+        List<CompoundTag> parts = selfAndPassengers(mob.entityData());
+        MutableComponent name = rootName(mob, parts.get(0));
+        for (int index = 1; index < parts.size(); index++) {
+            name = name.append(Component.translatable("tooltip.bottledmobs.group_separator"))
+                    .append(speciesName(parts.get(index))
+                            .orElseGet(() -> Component.translatable("tooltip.bottledmobs.unknown")));
+        }
+        return name;
+    }
+
+    private static MutableComponent rootName(StoredMob mob, CompoundTag root) {
+        if (!mob.customName().isEmpty()) {
+            return Component.literal(mob.customName());
+        }
+        return speciesName(root).map(Component::copy).orElseGet(() -> {
+            String fallback = mob.fallbackName();
+            return fallback.isEmpty()
+                    ? Component.translatable("tooltip.bottledmobs.unknown")
+                    : Component.literal(fallback);
+        });
+    }
+
+    private static Optional<Component> jockeyName(StoredMob mob) {
+        List<CompoundTag> parts = selfAndPassengers(mob.entityData());
+        if (parts.size() != 2) {
+            return Optional.empty();
+        }
+        Optional<EntityType<?>> root = EntityType.by(parts.get(0));
+        Optional<EntityType<?>> rider = EntityType.by(parts.get(1));
+        if (root.isEmpty() || rider.isEmpty()) {
+            return Optional.empty();
+        }
+        EntityType<?> rootType = root.get();
+        EntityType<?> riderType = rider.get();
+        if (rootType == EntityType.CHICKEN
+                && (riderType == EntityType.ZOMBIE
+                        || riderType == EntityType.HUSK
+                        || riderType == EntityType.DROWNED)) {
+            return Optional.of(Component.translatable("tooltip.bottledmobs.chicken_jockey"));
+        }
+        if (rootType == EntityType.SPIDER
+                && (riderType == EntityType.SKELETON
+                        || riderType == EntityType.STRAY)) {
+            return Optional.of(Component.translatable("tooltip.bottledmobs.spider_jockey"));
+        }
+        return Optional.empty();
     }
 
     private static void collect(CompoundTag data, List<CompoundTag> out) {

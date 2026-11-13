@@ -1,0 +1,26 @@
+{
+  "parent": "bottledmobs:first_bottle",
+  "display": {
+    "icon": {
+      "id": "bottledmobs:display_stand"
+    },
+    "title": {
+      "translate": "advancements.bottledmobs.curator.title"
+    },
+    "description": {
+      "translate": "advancements.bottledmobs.curator.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "display": {
+      "trigger": "bottledmobs:collect",
+      "conditions": {
+        "action": "curator"
+      }
+    }
+  }
+}

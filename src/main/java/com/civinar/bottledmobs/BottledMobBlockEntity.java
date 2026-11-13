@@ -96,6 +96,17 @@ public class BottledMobBlockEntity extends BlockEntity {
         return !this.mob.isEmpty() && this.hasDefaultShell() && MobInfo.isAquatic(this.mob);
     }
 
+    /**
+     * Whether a display stand sits directly below this jar. Used for the curator
+     * achievement and by the stand renderer.
+     */
+    public boolean isOnDisplayStand() {
+        if (this.level == null) {
+            return false;
+        }
+        return this.level.getBlockState(this.worldPosition.below()).getBlock() instanceof DisplayStandBlock;
+    }
+
     public void renameMob(String name) {
         if (this.mob.isEmpty() || this.level == null) {
             return;
@@ -166,7 +177,7 @@ public class BottledMobBlockEntity extends BlockEntity {
             double maxHealth = 0.0D;
             if (this.level != null) {
                 for (CompoundTag part : MobInfo.selfAndPassengers(this.mob.entityData())) {
-                    Entity entity = MobNbt.create(part, this.level);
+                    Entity entity = MobNbt.createSingle(part, this.level);
                     if (entity instanceof LivingEntity living) {
                         maxHealth = Math.max(maxHealth, Math.ceil(living.getMaxHealth()));
                     }
