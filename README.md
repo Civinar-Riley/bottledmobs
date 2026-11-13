@@ -54,7 +54,8 @@ GGG
 
 - Minecraft **1.21.1** + NeoForge **21.1.119**
 - 客户端与服务端都需要安装
-- 把 `bottledmobs-neoforge-1.0.0.jar` 放进 `mods` 文件夹
+- 从 [Releases](https://github.com/Civinar-Riley/bottledmobs/releases) 下载 `bottledmobs-neoforge-1.0.0.jar`
+- 把 jar 放进 `mods` 文件夹
 
 ## 配置
 
