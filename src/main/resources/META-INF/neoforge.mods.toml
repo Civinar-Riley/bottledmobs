@@ -1,0 +1,26 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+issueTrackerURL="https://github.com/Civinar-Riley/bottledmobs/issues"
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="Bottled Mobs 瓶中生物"
+authors="${mod_authors}"
+description='''Capture a mob in a glass jar, place it as a block, and decorate it freely.
+捕捉生物并封入玻璃罐，放置为方块后随意调整外观、大小与高度。'''
+
+[[dependencies.${mod_id}]]
+modId="neoforge"
+type="required"
+versionRange="${neo_version_range}"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.${mod_id}]]
+modId="minecraft"
+type="required"
+versionRange="${minecraft_version_range}"
+ordering="NONE"
+side="BOTH"

@@ -1,0 +1,24 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "category": "misc",
+    "pattern": [
+        " W ",
+        "GBG",
+        "GGG"
+    ],
+    "key": {
+        "W": {
+            "tag": "minecraft:wooden_slabs"
+        },
+        "G": {
+            "item": "minecraft:glass"
+        },
+        "B": {
+            "item": "minecraft:glass_bottle"
+        }
+    },
+    "result": {
+        "id": "bottledmobs:bottled_mob",
+        "count": 1
+    }
+}

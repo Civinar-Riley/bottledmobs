@@ -1,0 +1,17 @@
+{
+    "block.bottledmobs.bottled_mob": "Bottled Mob",
+    "block.bottledmobs.empty_jar": "Empty Jar",
+    "item.bottledmobs.bottled_mob": "Bottled Mob",
+    "item.bottledmobs.empty_jar": "Empty Jar",
+    "tooltip.bottledmobs.empty": "Empty: right-click a creature to capture it",
+    "tooltip.bottledmobs.contains": "Captured: %s",
+    "tooltip.bottledmobs.unknown": "Unknown creature",
+    "tooltip.bottledmobs.usage_hint": "Hold Shift for controls",
+    "tooltip.bottledmobs.usage.1": "Right-click or left-click a creature to capture it",
+    "tooltip.bottledmobs.usage.2": "Right-click the ground to release; sneak to place the jar",
+    "tooltip.bottledmobs.usage.3": "Placed jar: use any block to replace the shell",
+    "tooltip.bottledmobs.usage.4": "Sword removes the shell; stick gives a full-size figure",
+    "tooltip.bottledmobs.usage.5": "Hoe/axe resize the mob; pickaxe/shovel adjust its height",
+    "tooltip.bottledmobs.usage.6": "Book and quill copies settings; a written book pastes them",
+    "message.bottledmobs.cannot_capture_riding": "Cannot capture a creature that is riding or carrying passengers"
+}
