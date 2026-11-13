@@ -35,7 +35,7 @@ public record JarSettings(Optional<ResourceLocation> shell, float scale, float h
 
     public JarSettings {
         shell = shell == null ? Optional.empty() : shell;
-        scale = Float.isFinite(scale) ? scale : 0.35F;
+        scale = Float.isFinite(scale) ? scale : 0.5F;
         height = Float.isFinite(height) ? height : 0.0F;
         facing = facing == null || !facing.getAxis().isHorizontal() ? Direction.NORTH : facing;
     }

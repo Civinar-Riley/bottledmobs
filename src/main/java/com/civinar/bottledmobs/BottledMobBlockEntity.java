@@ -24,7 +24,7 @@ import java.util.Optional;
 
 public class BottledMobBlockEntity extends BlockEntity {
 
-    public static final float DEFAULT_SCALE = 0.35F;
+    public static final float DEFAULT_SCALE = 0.5F;
     public static final float SAFE_MIN_SCALE = 0.01F;
     public static final float SAFE_MAX_SCALE = 16.0F;
     public static final float SAFE_MAX_HEIGHT = 4.0F;

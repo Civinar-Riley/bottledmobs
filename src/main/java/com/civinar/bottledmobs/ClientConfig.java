@@ -11,7 +11,7 @@ public final class ClientConfig {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
         ANIMATE = builder
                 .comment("Spin captured mobs and tick their models while displayed.")
-                .define("animateCapturedMobs", true);
+                .define("animateCapturedMobs", false);
         SPEC = builder.build();
     }
 

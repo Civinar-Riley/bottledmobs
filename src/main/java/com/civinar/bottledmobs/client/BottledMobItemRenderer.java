@@ -1,5 +1,6 @@
 package com.civinar.bottledmobs.client;
 
+import com.civinar.bottledmobs.BottledMobBlockEntity;
 import com.civinar.bottledmobs.BottledMobs;
 import com.civinar.bottledmobs.MobNbt;
 import com.civinar.bottledmobs.StoredMob;
@@ -53,7 +54,8 @@ public class BottledMobItemRenderer extends BlockEntityWithoutLevelRenderer {
         if (entity != null) {
             pose.pushPose();
             pose.translate(0.5, 0.0, 0.5);
-            pose.scale(0.35F, 0.35F, 0.35F);
+            pose.scale(BottledMobBlockEntity.DEFAULT_SCALE, BottledMobBlockEntity.DEFAULT_SCALE,
+                    BottledMobBlockEntity.DEFAULT_SCALE);
             pose.mulPose(ITEM_ROTATION);
             this.entityRenderer.render(entity, 0.0, 0.0, 0.0, 0.0F, 0.0F, pose, buffer, light);
             pose.popPose();
