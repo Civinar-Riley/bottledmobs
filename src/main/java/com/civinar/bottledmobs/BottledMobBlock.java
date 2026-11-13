@@ -71,6 +71,18 @@ public class BottledMobBlock extends BaseEntityBlock {
     }
 
     @Override
+    protected boolean hasAnalogOutputSignal(BlockState state) {
+        return true;
+    }
+
+    @Override
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
+        return level.getBlockEntity(pos) instanceof BottledMobBlockEntity jar
+                ? jar.getComparatorSignal()
+                : 0;
+    }
+
+    @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new BottledMobBlockEntity(pos, state);
     }
@@ -196,8 +208,16 @@ public class BottledMobBlock extends BaseEntityBlock {
         }
 
         if (stack.is(BottledMobs.BOTTLED_MOB_ITEM.get())) {
-            jar.resetShell();
-            playSound(level, pos, SoundEvents.ITEM_FRAME_REMOVE_ITEM, 1.0F);
+            StoredMob stored = stack.getOrDefault(BottledMobs.STORED_MOB.get(), StoredMob.EMPTY);
+            if (jar.getMob().isEmpty() && !stored.isEmpty()) {
+                jar.insertMob(stored);
+                stack.set(BottledMobs.STORED_MOB.get(), StoredMob.EMPTY);
+                stack.remove(BottledMobs.JAR_SETTINGS.get());
+                playSound(level, pos, SoundEvents.BOTTLE_FILL, 1.0F);
+            } else {
+                jar.resetShell();
+                playSound(level, pos, SoundEvents.ITEM_FRAME_REMOVE_ITEM, 1.0F);
+            }
             return ItemInteractionResult.SUCCESS;
         }
 

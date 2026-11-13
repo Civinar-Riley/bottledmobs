@@ -71,15 +71,33 @@ public final class BottledMobs {
                     .isSuffocating((state, level, pos) -> false)
                     .pushReaction(PushReaction.BLOCK)));
 
+    public static final DeferredBlock<Block> DISPLAY_STAND = BLOCKS.register("display_stand",
+            () -> new DisplayStandBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.STONE)
+                    .strength(1.5F)
+                    .sound(SoundType.STONE)
+                    .noOcclusion()
+                    .isRedstoneConductor((state, level, pos) -> false)
+                    .isSuffocating((state, level, pos) -> false)
+                    .pushReaction(PushReaction.BLOCK)));
+
     public static final DeferredItem<BlockItem> BOTTLED_MOB_ITEM = ITEMS.register("bottled_mob",
             () -> new BottledMobItem(BOTTLED_MOB.get(), new Item.Properties()));
 
     public static final DeferredItem<BlockItem> EMPTY_JAR_ITEM =
             ITEMS.registerSimpleBlockItem("empty_jar", EMPTY_JAR);
 
+    public static final DeferredItem<BlockItem> DISPLAY_STAND_ITEM =
+            ITEMS.register("display_stand",
+                    () -> new DisplayStandItem(DISPLAY_STAND.get(), new Item.Properties()));
+
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BottledMobBlockEntity>> BOTTLED_MOB_BE =
             BLOCK_ENTITIES.register("bottled_mob",
                     () -> BlockEntityType.Builder.of(BottledMobBlockEntity::new, BOTTLED_MOB.get()).build(null));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<DisplayStandBlockEntity>> DISPLAY_STAND_BE =
+            BLOCK_ENTITIES.register("display_stand",
+                    () -> BlockEntityType.Builder.of(DisplayStandBlockEntity::new, DISPLAY_STAND.get()).build(null));
 
     public static final Supplier<DataComponentType<StoredMob>> STORED_MOB =
             DATA_COMPONENTS.registerComponentType("stored_mob", builder -> builder
@@ -120,6 +138,7 @@ public final class BottledMobs {
     private void addCreativeTabItems(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
             event.accept(EMPTY_JAR_ITEM.get());
+            event.accept(DISPLAY_STAND_ITEM.get());
             event.accept(BOTTLED_MOB_ITEM.get());
         }
     }

@@ -11,6 +11,7 @@ public final class GameplayConfig {
     public static final ModConfigSpec.DoubleValue MIN_HEIGHT;
     public static final ModConfigSpec.DoubleValue MAX_HEIGHT;
     public static final ModConfigSpec.DoubleValue HEIGHT_STEP;
+    public static final ModConfigSpec.BooleanValue REDSTONE_RELEASE;
 
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
@@ -33,6 +34,12 @@ public final class GameplayConfig {
         HEIGHT_STEP = builder
                 .comment("Vertical offset change per pickaxe or shovel use, in blocks.")
                 .defineInRange("heightStep", 1.0D / 16.0D, 0.001D, 1.0D);
+        builder.pop();
+
+        builder.push("interaction");
+        REDSTONE_RELEASE = builder
+                .comment("Release the captured mob when a redstone signal is applied.")
+                .define("redstoneRelease", false);
         builder.pop();
         SPEC = builder.build();
     }
@@ -59,6 +66,10 @@ public final class GameplayConfig {
 
     public static float heightStep() {
         return HEIGHT_STEP.get().floatValue();
+    }
+
+    public static boolean redstoneRelease() {
+        return REDSTONE_RELEASE.get();
     }
 
     private GameplayConfig() {

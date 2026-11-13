@@ -19,6 +19,7 @@ public final class ClientSetup {
 
     private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(BottledMobs.BOTTLED_MOB_BE.get(), BottledMobBlockRenderer::new);
+        event.registerBlockEntityRenderer(BottledMobs.DISPLAY_STAND_BE.get(), DisplayStandRenderer::new);
     }
 
     private static void registerClientExtensions(RegisterClientExtensionsEvent event) {

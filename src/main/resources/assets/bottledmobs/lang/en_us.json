@@ -118,5 +118,8 @@
     "variant.bottledmobs.wolf.rusty": "Rusty",
     "variant.bottledmobs.wolf.woods": "Woods",
     "variant.bottledmobs.wolf.chestnut": "Chestnut",
-    "variant.bottledmobs.wolf.striped": "Striped"
+    "variant.bottledmobs.wolf.striped": "Striped",
+    "block.bottledmobs.display_stand": "Display Stand",
+    "item.bottledmobs.display_stand": "Display Stand",
+    "tooltip.bottledmobs.display_stand": "Place on the floor or a wall; a jar above shows its label"
 }

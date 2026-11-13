@@ -2,6 +2,7 @@ package com.civinar.bottledmobs.client;
 
 import com.civinar.bottledmobs.BottledMobBlockEntity;
 import com.civinar.bottledmobs.ClientConfig;
+import com.civinar.bottledmobs.DisplayStandBlock;
 import com.civinar.bottledmobs.MobNbt;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
@@ -87,9 +88,16 @@ public class BottledMobBlockRenderer implements BlockEntityRenderer<BottledMobBl
             pose.popPose();
         }
 
-        if (!jar.getMob().isEmpty() && !jar.getMob().customName().isEmpty()) {
+        if (!jar.getMob().isEmpty() && !jar.getMob().customName().isEmpty()
+                && !this.hasDisplayStand(jar)) {
             JarLabelRenderer.render(jar.getMob().customName(), pose, buffer, light);
         }
+    }
+
+    private boolean hasDisplayStand(BottledMobBlockEntity jar) {
+        Level level = jar.getLevel();
+        return level != null
+                && level.getBlockState(jar.getBlockPos().below()).getBlock() instanceof DisplayStandBlock;
     }
 
     private void spawnBubbles(BottledMobBlockEntity jar) {

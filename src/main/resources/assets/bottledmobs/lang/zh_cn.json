@@ -118,5 +118,8 @@
     "variant.bottledmobs.wolf.rusty": "锈红",
     "variant.bottledmobs.wolf.woods": "森林",
     "variant.bottledmobs.wolf.chestnut": "栗色",
-    "variant.bottledmobs.wolf.striped": "条纹"
+    "variant.bottledmobs.wolf.striped": "条纹",
+    "block.bottledmobs.display_stand": "展示底座",
+    "item.bottledmobs.display_stand": "展示底座",
+    "tooltip.bottledmobs.display_stand": "放在地面或墙面；上方罐子会自动显示展签"
 }

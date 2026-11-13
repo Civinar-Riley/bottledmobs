@@ -1,0 +1,12 @@
+{
+    "variants": {
+        "wall=false,facing=north": { "model": "bottledmobs:block/display_stand" },
+        "wall=false,facing=east": { "model": "bottledmobs:block/display_stand", "y": 90 },
+        "wall=false,facing=south": { "model": "bottledmobs:block/display_stand", "y": 180 },
+        "wall=false,facing=west": { "model": "bottledmobs:block/display_stand", "y": 270 },
+        "wall=true,facing=north": { "model": "bottledmobs:block/display_stand_wall" },
+        "wall=true,facing=east": { "model": "bottledmobs:block/display_stand_wall", "y": 90 },
+        "wall=true,facing=south": { "model": "bottledmobs:block/display_stand_wall", "y": 180 },
+        "wall=true,facing=west": { "model": "bottledmobs:block/display_stand_wall", "y": 270 }
+    }
+}

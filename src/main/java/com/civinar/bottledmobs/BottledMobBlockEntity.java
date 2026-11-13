@@ -3,6 +3,7 @@ package com.civinar.bottledmobs;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -11,7 +12,11 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
@@ -37,6 +42,9 @@ public class BottledMobBlockEntity extends BlockEntity {
     private float height;
     private int revision;
     private boolean lightInitialized;
+    private int comparatorSignal;
+    private boolean wasPowered;
+    private boolean powerInitialized;
 
     public BottledMobBlockEntity(BlockPos pos, BlockState state) {
         super(BottledMobs.BOTTLED_MOB_BE.get(), pos, state);
@@ -50,6 +58,7 @@ public class BottledMobBlockEntity extends BlockEntity {
         this.syncFull();
         this.lightInitialized = true;
         this.updateLightLevel();
+        this.updateComparatorSignal();
     }
 
     public StoredMob getMob() {
@@ -117,10 +126,90 @@ public class BottledMobBlockEntity extends BlockEntity {
     }
 
     public void serverTick() {
+        if (this.level == null) {
+            return;
+        }
         if (!this.lightInitialized) {
             this.lightInitialized = true;
             this.updateLightLevel();
+            this.updateComparatorSignal();
         }
+        if (!this.powerInitialized) {
+            this.wasPowered = this.level.hasNeighborSignal(this.worldPosition);
+            this.powerInitialized = true;
+        } else {
+            boolean powered = this.level.hasNeighborSignal(this.worldPosition);
+            if (GameplayConfig.redstoneRelease() && powered && !this.wasPowered && !this.mob.isEmpty()) {
+                this.releaseMob();
+            }
+            this.wasPowered = powered;
+        }
+    }
+
+    public int getComparatorSignal() {
+        return this.comparatorSignal;
+    }
+
+    public void insertMob(StoredMob mob) {
+        this.mob = mob;
+        this.revision++;
+        this.setChanged();
+        this.syncFull();
+        this.lightInitialized = true;
+        this.updateLightLevel();
+        this.updateComparatorSignal();
+    }
+
+    private void updateComparatorSignal() {
+        int signal = 0;
+        if (!this.mob.isEmpty()) {
+            double maxHealth = 0.0D;
+            if (this.level != null) {
+                for (CompoundTag part : MobInfo.selfAndPassengers(this.mob.entityData())) {
+                    Entity entity = MobNbt.create(part, this.level);
+                    if (entity instanceof LivingEntity living) {
+                        maxHealth = Math.max(maxHealth, Math.ceil(living.getMaxHealth()));
+                    }
+                }
+            }
+            signal = Mth.clamp(
+                    (int) Math.ceil(Math.log(maxHealth + 1.0D) / Math.log(2.0D)), 1, 15);
+        }
+        if (signal != this.comparatorSignal) {
+            this.comparatorSignal = signal;
+            if (this.level != null) {
+                this.level.updateNeighbourForOutputSignal(
+                        this.worldPosition, this.getBlockState().getBlock());
+            }
+        }
+    }
+
+    private void releaseMob() {
+        if (this.mob.isEmpty() || !(this.level instanceof ServerLevel serverLevel)) {
+            return;
+        }
+        Entity entity = MobNbt.create(this.mob.entityData(), serverLevel);
+        if (entity == null) {
+            BottledMobs.LOGGER.warn("Could not release the captured mob at {}", this.worldPosition);
+            return;
+        }
+        BlockPos spawn = this.worldPosition.relative(this.facing);
+        entity.moveTo(spawn.getX() + 0.5, spawn.getY() + 0.5, spawn.getZ() + 0.5,
+                this.facing.toYRot(), 0.0F);
+        serverLevel.addFreshEntityWithPassengers(entity);
+
+        this.mob = StoredMob.EMPTY;
+        this.revision++;
+        this.setChanged();
+        this.syncFull();
+        this.updateLightLevel();
+        this.updateComparatorSignal();
+        serverLevel.playSound(null, this.worldPosition, SoundEvents.BOTTLE_EMPTY,
+                SoundSource.BLOCKS, 1.0F, 1.0F);
+        serverLevel.sendParticles(ParticleTypes.POOF,
+                this.worldPosition.getX() + 0.5, this.worldPosition.getY() + 0.8,
+                this.worldPosition.getZ() + 0.5,
+                8, 0.25, 0.5, 0.25, 0.01);
     }
 
     public void setShell(@Nullable Block block) {
@@ -306,6 +395,7 @@ public class BottledMobBlockEntity extends BlockEntity {
                 : 0.0F;
         this.revision++;
         this.lightInitialized = false;
+        this.powerInitialized = false;
     }
 
     @Override
