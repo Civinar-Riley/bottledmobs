@@ -1,0 +1,44 @@
+[
+  {
+    "entity": "minecraft:horse",
+    "path": "Variant",
+    "value": 0,
+    "name": "variant.bottledmobs.horse.white"
+  },
+  {
+    "entity": "minecraft:horse",
+    "path": "Variant",
+    "value": 1,
+    "name": "variant.bottledmobs.horse.creamy"
+  },
+  {
+    "entity": "minecraft:horse",
+    "path": "Variant",
+    "value": 2,
+    "name": "variant.bottledmobs.horse.chestnut"
+  },
+  {
+    "entity": "minecraft:horse",
+    "path": "Variant",
+    "value": 3,
+    "name": "variant.bottledmobs.horse.brown"
+  },
+  {
+    "entity": "minecraft:horse",
+    "path": "Variant",
+    "value": 4,
+    "name": "variant.bottledmobs.horse.black"
+  },
+  {
+    "entity": "minecraft:horse",
+    "path": "Variant",
+    "value": 5,
+    "name": "variant.bottledmobs.horse.gray"
+  },
+  {
+    "entity": "minecraft:horse",
+    "path": "Variant",
+    "value": 6,
+    "name": "variant.bottledmobs.horse.dark_brown"
+  }
+]

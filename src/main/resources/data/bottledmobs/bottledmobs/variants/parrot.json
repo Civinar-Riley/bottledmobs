@@ -1,0 +1,32 @@
+[
+  {
+    "entity": "minecraft:parrot",
+    "path": "Variant",
+    "value": 0,
+    "name": "variant.bottledmobs.parrot.red_blue"
+  },
+  {
+    "entity": "minecraft:parrot",
+    "path": "Variant",
+    "value": 1,
+    "name": "variant.bottledmobs.parrot.blue"
+  },
+  {
+    "entity": "minecraft:parrot",
+    "path": "Variant",
+    "value": 2,
+    "name": "variant.bottledmobs.parrot.green"
+  },
+  {
+    "entity": "minecraft:parrot",
+    "path": "Variant",
+    "value": 3,
+    "name": "variant.bottledmobs.parrot.yellow_blue"
+  },
+  {
+    "entity": "minecraft:parrot",
+    "path": "Variant",
+    "value": 4,
+    "name": "variant.bottledmobs.parrot.gray"
+  }
+]

@@ -1,0 +1,56 @@
+[
+  {
+    "entity": "minecraft:wolf",
+    "path": "variant",
+    "value": "minecraft:pale",
+    "name": "variant.bottledmobs.wolf.pale"
+  },
+  {
+    "entity": "minecraft:wolf",
+    "path": "variant",
+    "value": "minecraft:spotted",
+    "name": "variant.bottledmobs.wolf.spotted"
+  },
+  {
+    "entity": "minecraft:wolf",
+    "path": "variant",
+    "value": "minecraft:snowy",
+    "name": "variant.bottledmobs.wolf.snowy"
+  },
+  {
+    "entity": "minecraft:wolf",
+    "path": "variant",
+    "value": "minecraft:black",
+    "name": "variant.bottledmobs.wolf.black"
+  },
+  {
+    "entity": "minecraft:wolf",
+    "path": "variant",
+    "value": "minecraft:ashen",
+    "name": "variant.bottledmobs.wolf.ashen"
+  },
+  {
+    "entity": "minecraft:wolf",
+    "path": "variant",
+    "value": "minecraft:rusty",
+    "name": "variant.bottledmobs.wolf.rusty"
+  },
+  {
+    "entity": "minecraft:wolf",
+    "path": "variant",
+    "value": "minecraft:woods",
+    "name": "variant.bottledmobs.wolf.woods"
+  },
+  {
+    "entity": "minecraft:wolf",
+    "path": "variant",
+    "value": "minecraft:chestnut",
+    "name": "variant.bottledmobs.wolf.chestnut"
+  },
+  {
+    "entity": "minecraft:wolf",
+    "path": "variant",
+    "value": "minecraft:striped",
+    "name": "variant.bottledmobs.wolf.striped"
+  }
+]

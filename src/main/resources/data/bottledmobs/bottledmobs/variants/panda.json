@@ -1,0 +1,44 @@
+[
+  {
+    "entity": "minecraft:panda",
+    "path": "MainGene",
+    "value": "normal",
+    "name": "variant.bottledmobs.panda.normal"
+  },
+  {
+    "entity": "minecraft:panda",
+    "path": "MainGene",
+    "value": "lazy",
+    "name": "variant.bottledmobs.panda.lazy"
+  },
+  {
+    "entity": "minecraft:panda",
+    "path": "MainGene",
+    "value": "worried",
+    "name": "variant.bottledmobs.panda.worried"
+  },
+  {
+    "entity": "minecraft:panda",
+    "path": "MainGene",
+    "value": "playful",
+    "name": "variant.bottledmobs.panda.playful"
+  },
+  {
+    "entity": "minecraft:panda",
+    "path": "MainGene",
+    "value": "brown",
+    "name": "variant.bottledmobs.panda.brown"
+  },
+  {
+    "entity": "minecraft:panda",
+    "path": "MainGene",
+    "value": "weak",
+    "name": "variant.bottledmobs.panda.weak"
+  },
+  {
+    "entity": "minecraft:panda",
+    "path": "MainGene",
+    "value": "aggressive",
+    "name": "variant.bottledmobs.panda.aggressive"
+  }
+]

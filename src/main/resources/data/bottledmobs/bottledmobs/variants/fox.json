@@ -1,0 +1,14 @@
+[
+  {
+    "entity": "minecraft:fox",
+    "path": "Type",
+    "value": "red",
+    "name": "variant.bottledmobs.fox.red"
+  },
+  {
+    "entity": "minecraft:fox",
+    "path": "Type",
+    "value": "snow",
+    "name": "variant.bottledmobs.fox.snow"
+  }
+]

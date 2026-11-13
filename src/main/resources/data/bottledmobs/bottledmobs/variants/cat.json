@@ -1,0 +1,62 @@
+[
+  {
+    "entity": "minecraft:cat",
+    "path": "variant",
+    "value": "minecraft:tabby",
+    "name": "variant.bottledmobs.cat.tabby"
+  },
+  {
+    "entity": "minecraft:cat",
+    "path": "variant",
+    "value": "minecraft:black",
+    "name": "variant.bottledmobs.cat.black"
+  },
+  {
+    "entity": "minecraft:cat",
+    "path": "variant",
+    "value": "minecraft:red",
+    "name": "variant.bottledmobs.cat.red"
+  },
+  {
+    "entity": "minecraft:cat",
+    "path": "variant",
+    "value": "minecraft:siamese",
+    "name": "variant.bottledmobs.cat.siamese"
+  },
+  {
+    "entity": "minecraft:cat",
+    "path": "variant",
+    "value": "minecraft:british_shorthair",
+    "name": "variant.bottledmobs.cat.british_shorthair"
+  },
+  {
+    "entity": "minecraft:cat",
+    "path": "variant",
+    "value": "minecraft:calico",
+    "name": "variant.bottledmobs.cat.calico"
+  },
+  {
+    "entity": "minecraft:cat",
+    "path": "variant",
+    "value": "minecraft:persian",
+    "name": "variant.bottledmobs.cat.persian"
+  },
+  {
+    "entity": "minecraft:cat",
+    "path": "variant",
+    "value": "minecraft:ragdoll",
+    "name": "variant.bottledmobs.cat.ragdoll"
+  },
+  {
+    "entity": "minecraft:cat",
+    "path": "variant",
+    "value": "minecraft:white",
+    "name": "variant.bottledmobs.cat.white"
+  },
+  {
+    "entity": "minecraft:cat",
+    "path": "variant",
+    "value": "minecraft:jellie",
+    "name": "variant.bottledmobs.cat.jellie"
+  }
+]

@@ -1,0 +1,20 @@
+{
+    "files": [
+        "axolotl.json",
+        "cat.json",
+        "fox.json",
+        "parrot.json",
+        "rabbit.json",
+        "horse.json",
+        "llama.json",
+        "mooshroom.json",
+        "panda.json",
+        "frog.json",
+        "villager.json",
+        "wolf.json",
+        "sheep.json",
+        "shulker.json",
+        "slime.json",
+        "magma_cube.json"
+    ]
+}

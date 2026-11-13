@@ -6,6 +6,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.network.Filterable;
 import net.minecraft.sounds.SoundEvent;
@@ -26,8 +27,12 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -43,9 +48,11 @@ import java.util.List;
 public class BottledMobBlock extends BaseEntityBlock {
 
     public static final MapCodec<BottledMobBlock> CODEC = simpleCodec(BottledMobBlock::new);
+    public static final IntegerProperty LIGHT = IntegerProperty.create("light", 0, 15);
 
     public BottledMobBlock(BlockBehaviour.Properties properties) {
         super(properties);
+        this.registerDefaultState(this.stateDefinition.any().setValue(LIGHT, 0));
     }
 
     @Override
@@ -54,8 +61,32 @@ public class BottledMobBlock extends BaseEntityBlock {
     }
 
     @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(LIGHT);
+    }
+
+    @Override
+    public int getLightEmission(BlockState state, BlockGetter level, BlockPos pos) {
+        return state.getValue(LIGHT);
+    }
+
+    @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new BottledMobBlockEntity(pos, state);
+    }
+
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state,
+                                                                  BlockEntityType<T> type) {
+        if (level.isClientSide) {
+            return null;
+        }
+        return (tickLevel, pos, tickState, blockEntity) -> {
+            if (blockEntity instanceof BottledMobBlockEntity jar) {
+                jar.serverTick();
+            }
+        };
     }
 
     @Override
@@ -142,6 +173,24 @@ public class BottledMobBlock extends BaseEntityBlock {
             } else {
                 jar.rotate();
                 playSound(level, pos, SoundEvents.ITEM_FRAME_ROTATE_ITEM, 1.0F);
+            }
+            return ItemInteractionResult.SUCCESS;
+        }
+
+        if (stack.is(Items.NAME_TAG)) {
+            Component customName = stack.get(DataComponents.CUSTOM_NAME);
+            if (customName == null || customName.getString().isBlank()) {
+                player.displayClientMessage(
+                        Component.translatable("message.bottledmobs.name_tag_unnamed"), true);
+            } else if (jar.getMob().isEmpty()) {
+                player.displayClientMessage(
+                        Component.translatable("message.bottledmobs.name_tag_empty"), true);
+            } else {
+                jar.renameMob(customName.getString());
+                if (!player.getAbilities().instabuild) {
+                    stack.shrink(1);
+                }
+                playSound(level, pos, SoundEvents.ITEM_FRAME_ADD_ITEM, 1.0F);
             }
             return ItemInteractionResult.SUCCESS;
         }

@@ -1,0 +1,26 @@
+[
+  {
+    "entity": "minecraft:llama",
+    "path": "Variant",
+    "value": 0,
+    "name": "variant.bottledmobs.llama.creme"
+  },
+  {
+    "entity": "minecraft:llama",
+    "path": "Variant",
+    "value": 1,
+    "name": "variant.bottledmobs.llama.white"
+  },
+  {
+    "entity": "minecraft:llama",
+    "path": "Variant",
+    "value": 2,
+    "name": "variant.bottledmobs.llama.brown"
+  },
+  {
+    "entity": "minecraft:llama",
+    "path": "Variant",
+    "value": 3,
+    "name": "variant.bottledmobs.llama.gray"
+  }
+]

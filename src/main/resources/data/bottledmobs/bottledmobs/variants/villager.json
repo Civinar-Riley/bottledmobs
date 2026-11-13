@@ -1,0 +1,92 @@
+[
+  {
+    "entity": "minecraft:villager",
+    "path": "VillagerData.profession",
+    "value": "minecraft:none",
+    "name": "variant.bottledmobs.villager.none"
+  },
+  {
+    "entity": "minecraft:villager",
+    "path": "VillagerData.profession",
+    "value": "minecraft:armorer",
+    "name": "variant.bottledmobs.villager.armorer"
+  },
+  {
+    "entity": "minecraft:villager",
+    "path": "VillagerData.profession",
+    "value": "minecraft:butcher",
+    "name": "variant.bottledmobs.villager.butcher"
+  },
+  {
+    "entity": "minecraft:villager",
+    "path": "VillagerData.profession",
+    "value": "minecraft:cartographer",
+    "name": "variant.bottledmobs.villager.cartographer"
+  },
+  {
+    "entity": "minecraft:villager",
+    "path": "VillagerData.profession",
+    "value": "minecraft:cleric",
+    "name": "variant.bottledmobs.villager.cleric"
+  },
+  {
+    "entity": "minecraft:villager",
+    "path": "VillagerData.profession",
+    "value": "minecraft:farmer",
+    "name": "variant.bottledmobs.villager.farmer"
+  },
+  {
+    "entity": "minecraft:villager",
+    "path": "VillagerData.profession",
+    "value": "minecraft:fisherman",
+    "name": "variant.bottledmobs.villager.fisherman"
+  },
+  {
+    "entity": "minecraft:villager",
+    "path": "VillagerData.profession",
+    "value": "minecraft:fletcher",
+    "name": "variant.bottledmobs.villager.fletcher"
+  },
+  {
+    "entity": "minecraft:villager",
+    "path": "VillagerData.profession",
+    "value": "minecraft:leatherworker",
+    "name": "variant.bottledmobs.villager.leatherworker"
+  },
+  {
+    "entity": "minecraft:villager",
+    "path": "VillagerData.profession",
+    "value": "minecraft:librarian",
+    "name": "variant.bottledmobs.villager.librarian"
+  },
+  {
+    "entity": "minecraft:villager",
+    "path": "VillagerData.profession",
+    "value": "minecraft:mason",
+    "name": "variant.bottledmobs.villager.mason"
+  },
+  {
+    "entity": "minecraft:villager",
+    "path": "VillagerData.profession",
+    "value": "minecraft:nitwit",
+    "name": "variant.bottledmobs.villager.nitwit"
+  },
+  {
+    "entity": "minecraft:villager",
+    "path": "VillagerData.profession",
+    "value": "minecraft:shepherd",
+    "name": "variant.bottledmobs.villager.shepherd"
+  },
+  {
+    "entity": "minecraft:villager",
+    "path": "VillagerData.profession",
+    "value": "minecraft:toolsmith",
+    "name": "variant.bottledmobs.villager.toolsmith"
+  },
+  {
+    "entity": "minecraft:villager",
+    "path": "VillagerData.profession",
+    "value": "minecraft:weaponsmith",
+    "name": "variant.bottledmobs.villager.weaponsmith"
+  }
+]

@@ -1,0 +1,20 @@
+[
+  {
+    "entity": "minecraft:magma_cube",
+    "path": "Size",
+    "value": 0,
+    "name": "variant.bottledmobs.size.small"
+  },
+  {
+    "entity": "minecraft:magma_cube",
+    "path": "Size",
+    "value": 1,
+    "name": "variant.bottledmobs.size.medium"
+  },
+  {
+    "entity": "minecraft:magma_cube",
+    "path": "Size",
+    "value": 3,
+    "name": "variant.bottledmobs.size.large"
+  }
+]

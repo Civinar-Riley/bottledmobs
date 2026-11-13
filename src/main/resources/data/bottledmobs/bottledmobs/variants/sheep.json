@@ -1,0 +1,98 @@
+[
+  {
+    "entity": "minecraft:sheep",
+    "path": "Color",
+    "value": 0,
+    "name": "variant.bottledmobs.color.white"
+  },
+  {
+    "entity": "minecraft:sheep",
+    "path": "Color",
+    "value": 1,
+    "name": "variant.bottledmobs.color.orange"
+  },
+  {
+    "entity": "minecraft:sheep",
+    "path": "Color",
+    "value": 2,
+    "name": "variant.bottledmobs.color.magenta"
+  },
+  {
+    "entity": "minecraft:sheep",
+    "path": "Color",
+    "value": 3,
+    "name": "variant.bottledmobs.color.light_blue"
+  },
+  {
+    "entity": "minecraft:sheep",
+    "path": "Color",
+    "value": 4,
+    "name": "variant.bottledmobs.color.yellow"
+  },
+  {
+    "entity": "minecraft:sheep",
+    "path": "Color",
+    "value": 5,
+    "name": "variant.bottledmobs.color.lime"
+  },
+  {
+    "entity": "minecraft:sheep",
+    "path": "Color",
+    "value": 6,
+    "name": "variant.bottledmobs.color.pink"
+  },
+  {
+    "entity": "minecraft:sheep",
+    "path": "Color",
+    "value": 7,
+    "name": "variant.bottledmobs.color.gray"
+  },
+  {
+    "entity": "minecraft:sheep",
+    "path": "Color",
+    "value": 8,
+    "name": "variant.bottledmobs.color.light_gray"
+  },
+  {
+    "entity": "minecraft:sheep",
+    "path": "Color",
+    "value": 9,
+    "name": "variant.bottledmobs.color.cyan"
+  },
+  {
+    "entity": "minecraft:sheep",
+    "path": "Color",
+    "value": 10,
+    "name": "variant.bottledmobs.color.purple"
+  },
+  {
+    "entity": "minecraft:sheep",
+    "path": "Color",
+    "value": 11,
+    "name": "variant.bottledmobs.color.blue"
+  },
+  {
+    "entity": "minecraft:sheep",
+    "path": "Color",
+    "value": 12,
+    "name": "variant.bottledmobs.color.brown"
+  },
+  {
+    "entity": "minecraft:sheep",
+    "path": "Color",
+    "value": 13,
+    "name": "variant.bottledmobs.color.green"
+  },
+  {
+    "entity": "minecraft:sheep",
+    "path": "Color",
+    "value": 14,
+    "name": "variant.bottledmobs.color.red"
+  },
+  {
+    "entity": "minecraft:sheep",
+    "path": "Color",
+    "value": 15,
+    "name": "variant.bottledmobs.color.black"
+  }
+]

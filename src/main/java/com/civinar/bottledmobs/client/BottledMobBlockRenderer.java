@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
@@ -74,12 +75,32 @@ public class BottledMobBlockRenderer implements BlockEntityRenderer<BottledMobBl
             pose.popPose();
         }
 
+        if (jar.hasWater()) {
+            JarWaterRenderer.render(pose, buffer, light);
+            this.spawnBubbles(jar);
+        }
+
         BlockState shell = jar.getShellState();
         if (!shell.isAir()) {
             pose.pushPose();
             this.blockRenderer.renderSingleBlock(shell, pose, buffer, light, overlay, ModelData.EMPTY, null);
             pose.popPose();
         }
+
+        if (!jar.getMob().isEmpty() && !jar.getMob().customName().isEmpty()) {
+            JarLabelRenderer.render(jar.getMob().customName(), pose, buffer, light);
+        }
+    }
+
+    private void spawnBubbles(BottledMobBlockEntity jar) {
+        Level level = jar.getLevel();
+        if (level == null || !level.isClientSide || level.random.nextFloat() > 0.02F) {
+            return;
+        }
+        double x = jar.getBlockPos().getX() + 0.35 + level.random.nextDouble() * 0.3;
+        double y = jar.getBlockPos().getY() + 0.25 + level.random.nextDouble() * 0.35;
+        double z = jar.getBlockPos().getZ() + 0.35 + level.random.nextDouble() * 0.3;
+        level.addParticle(ParticleTypes.BUBBLE, x, y, z, 0.0, 0.01, 0.0);
     }
 
     @Nullable
@@ -100,6 +121,8 @@ public class BottledMobBlockRenderer implements BlockEntityRenderer<BottledMobBl
         if (entity == null) {
             return null;
         }
+        entity.setCustomName(null);
+        entity.setCustomNameVisible(false);
         entity.setYRot(0.0F);
         entity.setXRot(0.0F);
         if (entity instanceof LivingEntity living) {

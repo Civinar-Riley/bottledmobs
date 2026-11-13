@@ -1,0 +1,14 @@
+[
+  {
+    "entity": "minecraft:mooshroom",
+    "path": "Type",
+    "value": "red",
+    "name": "variant.bottledmobs.mooshroom.red"
+  },
+  {
+    "entity": "minecraft:mooshroom",
+    "path": "Type",
+    "value": "brown",
+    "name": "variant.bottledmobs.mooshroom.brown"
+  }
+]

@@ -146,7 +146,12 @@ public class BottledMobItem extends BlockItem {
         if (mob.isEmpty()) {
             return name;
         }
-        return name.append(" ").append(mob.displayName());
+        name.append(" ").append(mob.displayName());
+        if (mob.customName().isEmpty()) {
+            MobInfo.variantName(mob).ifPresent(variant ->
+                    name.append(Component.translatable("tooltip.bottledmobs.variant_format", variant)));
+        }
+        return name;
     }
 
     @Override
@@ -158,10 +163,29 @@ public class BottledMobItem extends BlockItem {
         } else {
             tooltip.add(Component.translatable("tooltip.bottledmobs.contains", mob.displayName())
                     .withStyle(ChatFormatting.AQUA));
+            if (!mob.customName().isEmpty()) {
+                tooltip.add(Component.translatable("tooltip.bottledmobs.species", MobInfo.speciesName(mob))
+                        .withStyle(ChatFormatting.GRAY));
+            }
+            MobInfo.variantName(mob).ifPresent(variant ->
+                    tooltip.add(Component.translatable("tooltip.bottledmobs.variant", variant)
+                            .withStyle(ChatFormatting.GRAY)));
+            if (MobInfo.isBaby(mob)) {
+                tooltip.add(Component.translatable("tooltip.bottledmobs.baby")
+                        .withStyle(ChatFormatting.GRAY));
+            }
+            if (MobInfo.isAquatic(mob)) {
+                tooltip.add(Component.translatable("tooltip.bottledmobs.aquatic")
+                        .withStyle(ChatFormatting.GRAY));
+            }
+            if (GlowRules.lightFor(mob.entityData()) > 0) {
+                tooltip.add(Component.translatable("tooltip.bottledmobs.glowing")
+                        .withStyle(ChatFormatting.GRAY));
+            }
         }
 
         if (Screen.hasShiftDown()) {
-            for (int line = 1; line <= 7; line++) {
+            for (int line = 1; line <= 8; line++) {
                 tooltip.add(Component.translatable("tooltip.bottledmobs.usage." + line)
                         .withStyle(ChatFormatting.GRAY));
             }

@@ -1,5 +1,5 @@
 {
-    "variants": {
-        "": { "model": "bottledmobs:block/empty_jar" }
-    }
+    "multipart": [
+        { "apply": { "model": "bottledmobs:block/empty_jar" } }
+    ]
 }

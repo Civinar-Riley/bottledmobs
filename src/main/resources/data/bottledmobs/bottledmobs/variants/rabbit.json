@@ -1,0 +1,44 @@
+[
+  {
+    "entity": "minecraft:rabbit",
+    "path": "RabbitType",
+    "value": 0,
+    "name": "variant.bottledmobs.rabbit.brown"
+  },
+  {
+    "entity": "minecraft:rabbit",
+    "path": "RabbitType",
+    "value": 1,
+    "name": "variant.bottledmobs.rabbit.white"
+  },
+  {
+    "entity": "minecraft:rabbit",
+    "path": "RabbitType",
+    "value": 2,
+    "name": "variant.bottledmobs.rabbit.black"
+  },
+  {
+    "entity": "minecraft:rabbit",
+    "path": "RabbitType",
+    "value": 3,
+    "name": "variant.bottledmobs.rabbit.white_splotched"
+  },
+  {
+    "entity": "minecraft:rabbit",
+    "path": "RabbitType",
+    "value": 4,
+    "name": "variant.bottledmobs.rabbit.gold"
+  },
+  {
+    "entity": "minecraft:rabbit",
+    "path": "RabbitType",
+    "value": 5,
+    "name": "variant.bottledmobs.rabbit.salt"
+  },
+  {
+    "entity": "minecraft:rabbit",
+    "path": "RabbitType",
+    "value": 6,
+    "name": "variant.bottledmobs.rabbit.evil"
+  }
+]

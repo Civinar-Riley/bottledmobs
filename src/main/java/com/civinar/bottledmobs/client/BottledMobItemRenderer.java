@@ -2,6 +2,7 @@ package com.civinar.bottledmobs.client;
 
 import com.civinar.bottledmobs.BottledMobBlockEntity;
 import com.civinar.bottledmobs.BottledMobs;
+import com.civinar.bottledmobs.MobInfo;
 import com.civinar.bottledmobs.MobNbt;
 import com.civinar.bottledmobs.StoredMob;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -61,6 +62,10 @@ public class BottledMobItemRenderer extends BlockEntityWithoutLevelRenderer {
             pose.popPose();
         }
 
+        if (MobInfo.isAquatic(mob)) {
+            JarWaterRenderer.render(pose, buffer, light);
+        }
+
         this.blockRenderer.renderSingleBlock(
                 BottledMobs.EMPTY_JAR.get().defaultBlockState(),
                 pose, buffer, light, overlay, ModelData.EMPTY, null);
@@ -87,6 +92,8 @@ public class BottledMobItemRenderer extends BlockEntityWithoutLevelRenderer {
         if (entity == null) {
             return null;
         }
+        entity.setCustomName(null);
+        entity.setCustomNameVisible(false);
         entity.setYRot(0.0F);
         entity.setXRot(0.0F);
         if (entity instanceof LivingEntity living) {

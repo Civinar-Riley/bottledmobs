@@ -6,6 +6,9 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
@@ -37,6 +40,9 @@ public final class BottledMobs {
 
     public static final String MOD_ID = "bottledmobs";
     public static final Logger LOGGER = LogUtils.getLogger();
+
+    public static final TagKey<EntityType<?>> AQUATIC_DISPLAY =
+            TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(MOD_ID, "aquatic_display"));
 
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MOD_ID);
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MOD_ID);
@@ -96,6 +102,9 @@ public final class BottledMobs {
 
         modBus.addListener(this::addCreativeTabItems);
         modBus.addListener(this::registerPayloads);
+
+        VariantRules.loadBuiltin();
+        GlowRules.loadBuiltin();
 
         if (FMLEnvironment.dist == Dist.CLIENT) {
             ClientSetup.init(modBus);

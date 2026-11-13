@@ -1,0 +1,20 @@
+[
+  {
+    "entity": "minecraft:frog",
+    "path": "variant",
+    "value": "minecraft:temperate",
+    "name": "variant.bottledmobs.frog.temperate"
+  },
+  {
+    "entity": "minecraft:frog",
+    "path": "variant",
+    "value": "minecraft:warm",
+    "name": "variant.bottledmobs.frog.warm"
+  },
+  {
+    "entity": "minecraft:frog",
+    "path": "variant",
+    "value": "minecraft:cold",
+    "name": "variant.bottledmobs.frog.cold"
+  }
+]

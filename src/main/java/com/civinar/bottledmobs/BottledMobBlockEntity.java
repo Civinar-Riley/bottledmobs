@@ -5,6 +5,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -35,6 +36,7 @@ public class BottledMobBlockEntity extends BlockEntity {
     private float scale = DEFAULT_SCALE;
     private float height;
     private int revision;
+    private boolean lightInitialized;
 
     public BottledMobBlockEntity(BlockPos pos, BlockState state) {
         super(BottledMobs.BOTTLED_MOB_BE.get(), pos, state);
@@ -46,6 +48,8 @@ public class BottledMobBlockEntity extends BlockEntity {
         this.revision++;
         this.setChanged();
         this.syncFull();
+        this.lightInitialized = true;
+        this.updateLightLevel();
     }
 
     public StoredMob getMob() {
@@ -73,6 +77,50 @@ public class BottledMobBlockEntity extends BlockEntity {
             return BottledMobs.EMPTY_JAR.get().defaultBlockState();
         }
         return this.shell.defaultBlockState();
+    }
+
+    public boolean hasDefaultShell() {
+        return this.shell == null || this.shell == BottledMobs.EMPTY_JAR.get();
+    }
+
+    public boolean hasWater() {
+        return !this.mob.isEmpty() && this.hasDefaultShell() && MobInfo.isAquatic(this.mob);
+    }
+
+    public void renameMob(String name) {
+        if (this.mob.isEmpty() || this.level == null) {
+            return;
+        }
+        CompoundTag data = this.mob.entityData();
+        data.putString("CustomName", Component.Serializer.toJson(Component.literal(name),
+                this.level.registryAccess()));
+        data.putBoolean("CustomNameVisible", true);
+        this.mob = new StoredMob(data, this.mob.entityId(), name, this.mob.fallbackName());
+        this.revision++;
+        this.setChanged();
+        this.syncFull();
+    }
+
+    public void updateLightLevel() {
+        if (this.level == null || this.level.isClientSide) {
+            return;
+        }
+        BlockState state = this.getBlockState();
+        if (!(state.getBlock() instanceof BottledMobBlock)) {
+            return;
+        }
+        int light = GlowRules.lightFor(this.mob.entityData());
+        if (state.getValue(BottledMobBlock.LIGHT) != light) {
+            this.level.setBlock(this.worldPosition,
+                    state.setValue(BottledMobBlock.LIGHT, light), Block.UPDATE_ALL);
+        }
+    }
+
+    public void serverTick() {
+        if (!this.lightInitialized) {
+            this.lightInitialized = true;
+            this.updateLightLevel();
+        }
     }
 
     public void setShell(@Nullable Block block) {
@@ -257,6 +305,7 @@ public class BottledMobBlockEntity extends BlockEntity {
                 ? clamp(tag.getFloat("height"), 0.0F, SAFE_MAX_HEIGHT, 0.0F)
                 : 0.0F;
         this.revision++;
+        this.lightInitialized = false;
     }
 
     @Override
