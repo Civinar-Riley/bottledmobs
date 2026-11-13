@@ -4,7 +4,7 @@
 
 **把生物封进玻璃罐，摆出来，再慢慢折腾。**
 
-Minecraft 1.21.1 · NeoForge 21.1.119 · Java 21
+Minecraft 1.21.1 · NeoForge 21.1.252 · Java 21
 
 </div>
 
@@ -52,9 +52,9 @@ GGG
 
 ## 安装
 
-- Minecraft **1.21.1** + NeoForge **21.1.119**
+- Minecraft **1.21.1** + NeoForge **21.1.252**（21.1.x 系列）
 - 客户端与服务端都需要安装
-- 从 [Releases](https://github.com/Civinar-Riley/bottledmobs/releases) 下载 `bottledmobs-neoforge-1.0.0.jar`
+- 从 [Releases](https://github.com/Civinar-Riley/bottledmobs/releases) 下载 `bottledmobs-neoforge-1.0.1.jar`
 - 把 jar 放进 `mods` 文件夹
 
 ## 配置
@@ -82,7 +82,7 @@ GGG
 ./gradlew build
 ```
 
-产物位于 `build/libs/bottledmobs-neoforge-1.0.0.jar`。
+产物位于 `build/libs/bottledmobs-neoforge-1.0.1.jar`。
 
 ## 授权
 
