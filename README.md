@@ -27,8 +27,8 @@ Minecraft 1.21.1 · NeoForge 21.1.252 · Java 21
 | 手持瓶中生物右键已放置的罐子 | 恢复默认玻璃罐外观 |
 | 剑右键 | 拆除外壳，只展示生物 |
 | 木棍右键 | 玩偶模式：原尺寸、无外壳、贴地 |
-| 锄 / 斧右键 | 放大 / 缩小生物，范围 0.05–2.0 倍 |
-| 镐 / 铲右键 | 升高 / 降低生物，每下 1/16 格，范围 0–1 格 |
+| 锄 / 斧右键 | 放大 / 缩小生物，默认 0.1–3.0 倍，可在服务端配置中调整 |
+| 镐 / 铲右键 | 升高 / 降低生物，默认 0–1 格、每下 1/16 格，可在服务端配置中调整 |
 | 书与笔右键 | 把当前展示设置复印成一本成书 |
 | 成书右键 | 把书里记录的设置粘贴到该罐子 |
 
@@ -54,12 +54,14 @@ GGG
 
 - Minecraft **1.21.1** + NeoForge **21.1.252**（21.1.x 系列）
 - 客户端与服务端都需要安装
-- 从 [Releases](https://github.com/Civinar-Riley/bottledmobs/releases) 下载 `bottledmobs-neoforge-1.0.1.jar`
+- 从 [Releases](https://github.com/Civinar-Riley/bottledmobs/releases) 下载 `bottledmobs-neoforge-1.0.2.jar`
 - 把 jar 放进 `mods` 文件夹
 
 ## 配置
 
-客户端配置位于 `config/bottledmobs-client.toml`：
+### 客户端
+
+`config/bottledmobs-client.toml`：
 
 ```toml
 [general]
@@ -67,10 +69,28 @@ GGG
     animateCapturedMobs = true
 ```
 
+### 服务端
+
+`config/bottledmobs-server.toml`：
+
+```toml
+[display]
+    # 缩放范围与每次锄/斧的变化量
+    minScale = 0.1
+    maxScale = 3.0
+    scaleStep = 0.1
+    # 高度范围（格）与每次镐/铲的变化量
+    minHeight = 0.0
+    maxHeight = 1.0
+    heightStep = 0.0625
+```
+
+缩放允许 0.01–16.0，高度允许 0–4.0。`min` 写得比 `max` 大时会自动互换。
+
 ## 限制
 
 - 骑乘中或载有乘客的生物无法捕获。
-- 缩放范围 0.05–2.0 倍，高度范围 0–1 格，由代码写死。
+- 缩放与高度范围由服务端配置决定，默认缩放 0.1–3.0 倍、高度 0–1 格。
 - 只有玩家破坏方块时才会掉落带生物数据的物品；爆炸、活塞等非玩家破坏会丢失瓶内生物。
 - 与旧 MobBottle 的物品和存档不兼容（mod id 不同，方块与物品是全新的）。
 
@@ -82,7 +102,7 @@ GGG
 ./gradlew build
 ```
 
-产物位于 `build/libs/bottledmobs-neoforge-1.0.1.jar`。
+产物位于 `build/libs/bottledmobs-neoforge-1.0.2.jar`。
 
 ## 授权
 

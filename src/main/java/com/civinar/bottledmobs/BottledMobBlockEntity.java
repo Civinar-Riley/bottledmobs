@@ -22,11 +22,9 @@ import java.util.Optional;
 public class BottledMobBlockEntity extends BlockEntity {
 
     public static final float DEFAULT_SCALE = 0.35F;
-    public static final float MIN_SCALE = 0.05F;
-    public static final float MAX_SCALE = 2.0F;
-    public static final float SCALE_STEP = 0.1F;
-    public static final float HEIGHT_STEP = 1.0F / 16.0F;
-    public static final float MAX_HEIGHT = 1.0F;
+    public static final float SAFE_MIN_SCALE = 0.01F;
+    public static final float SAFE_MAX_SCALE = 16.0F;
+    public static final float SAFE_MAX_HEIGHT = 4.0F;
 
     private StoredMob mob = StoredMob.EMPTY;
     private Direction facing = Direction.NORTH;
@@ -82,28 +80,32 @@ public class BottledMobBlockEntity extends BlockEntity {
     }
 
     public void scaleUp() {
-        this.scale = Math.min(this.scale + SCALE_STEP, MAX_SCALE);
+        this.scale = Mth.clamp(this.scale + GameplayConfig.scaleStep(),
+                GameplayConfig.minScale(), GameplayConfig.maxScale());
         this.markUpdated();
     }
 
     public void scaleDown() {
-        this.scale = Math.max(this.scale - SCALE_STEP, MIN_SCALE);
+        this.scale = Mth.clamp(this.scale - GameplayConfig.scaleStep(),
+                GameplayConfig.minScale(), GameplayConfig.maxScale());
         this.markUpdated();
     }
 
     public void raise() {
-        this.height = Math.min(this.height + HEIGHT_STEP, MAX_HEIGHT);
+        this.height = Mth.clamp(this.height + GameplayConfig.heightStep(),
+                GameplayConfig.minHeight(), GameplayConfig.maxHeight());
         this.markUpdated();
     }
 
     public void lower() {
-        this.height = Math.max(this.height - HEIGHT_STEP, 0.0F);
+        this.height = Mth.clamp(this.height - GameplayConfig.heightStep(),
+                GameplayConfig.minHeight(), GameplayConfig.maxHeight());
         this.markUpdated();
     }
 
     public void setFigureMode() {
         this.shell = Blocks.AIR;
-        this.scale = 1.0F;
+        this.scale = Mth.clamp(1.0F, GameplayConfig.minScale(), GameplayConfig.maxScale());
         this.height = 0.0F;
         this.markUpdated();
     }
@@ -114,10 +116,19 @@ public class BottledMobBlockEntity extends BlockEntity {
     }
 
     public void applySettings(JarSettings settings) {
-        this.scale = Mth.clamp(settings.scale(), MIN_SCALE, MAX_SCALE);
-        this.height = Mth.clamp(settings.height(), 0.0F, MAX_HEIGHT);
+        this.scale = clamp(settings.scale(),
+                GameplayConfig.minScale(), GameplayConfig.maxScale(), DEFAULT_SCALE);
+        this.height = clamp(settings.height(),
+                GameplayConfig.minHeight(), GameplayConfig.maxHeight(), 0.0F);
         this.shell = shellFromId(settings.shell());
         this.markUpdated();
+    }
+
+    private static float clamp(float value, float min, float max, float fallback) {
+        if (!Float.isFinite(value)) {
+            return fallback;
+        }
+        return Mth.clamp(value, min, max);
     }
 
     @Nullable
@@ -192,9 +203,11 @@ public class BottledMobBlockEntity extends BlockEntity {
         this.facing = loadedFacing == null ? Direction.NORTH : loadedFacing;
         this.shell = shellFromString(tag.getString("shell"));
         this.scale = tag.contains("scale")
-                ? Mth.clamp(tag.getFloat("scale"), MIN_SCALE, MAX_SCALE)
+                ? clamp(tag.getFloat("scale"), SAFE_MIN_SCALE, SAFE_MAX_SCALE, DEFAULT_SCALE)
                 : DEFAULT_SCALE;
-        this.height = Mth.clamp(tag.getFloat("height"), 0.0F, MAX_HEIGHT);
+        this.height = tag.contains("height")
+                ? clamp(tag.getFloat("height"), 0.0F, SAFE_MAX_HEIGHT, 0.0F)
+                : 0.0F;
         this.revision++;
     }
 

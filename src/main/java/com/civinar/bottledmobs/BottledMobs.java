@@ -81,6 +81,7 @@ public final class BottledMobs {
 
     public BottledMobs(IEventBus modBus, ModContainer container) {
         container.registerConfig(ModConfig.Type.CLIENT, ClientConfig.SPEC);
+        container.registerConfig(ModConfig.Type.SERVER, GameplayConfig.SPEC);
 
         BLOCKS.register(modBus);
         ITEMS.register(modBus);

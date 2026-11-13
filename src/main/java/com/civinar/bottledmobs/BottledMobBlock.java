@@ -98,6 +98,11 @@ public class BottledMobBlock extends BaseEntityBlock {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
 
+        // The server owns the jar data; the client only consumes the interaction.
+        if (level.isClientSide) {
+            return ItemInteractionResult.SUCCESS;
+        }
+
         if (stack.is(BottledMobs.BOTTLED_MOB_ITEM.get())) {
             jar.resetShell();
             return ItemInteractionResult.SUCCESS;
@@ -123,19 +128,16 @@ public class BottledMobBlock extends BaseEntityBlock {
         } else if (stack.is(Items.STICK)) {
             jar.setFigureMode();
         } else if (stack.is(Items.WRITABLE_BOOK)) {
-            copySettings(level, pos, player, hand, jar);
+            copySettings(pos, player, hand, jar);
         } else if (stack.is(Items.WRITTEN_BOOK)) {
-            pasteSettings(level, stack, jar);
+            pasteSettings(stack, jar);
         }
 
         return ItemInteractionResult.SUCCESS;
     }
 
-    private static void copySettings(Level level, BlockPos pos, Player player, InteractionHand hand,
+    private static void copySettings(BlockPos pos, Player player, InteractionHand hand,
                                      BottledMobBlockEntity jar) {
-        if (level.isClientSide) {
-            return;
-        }
         ItemStack book = new ItemStack(Items.WRITTEN_BOOK);
         WrittenBookContent content = new WrittenBookContent(
                 Filterable.passThrough("Bottled Mob " + pos.toShortString()),
@@ -149,10 +151,7 @@ public class BottledMobBlock extends BaseEntityBlock {
         player.setItemInHand(hand, book);
     }
 
-    private static void pasteSettings(Level level, ItemStack stack, BottledMobBlockEntity jar) {
-        if (level.isClientSide) {
-            return;
-        }
+    private static void pasteSettings(ItemStack stack, BottledMobBlockEntity jar) {
         JarSettings settings = stack.get(BottledMobs.JAR_SETTINGS.get());
         if (settings != null) {
             jar.applySettings(settings);

@@ -6,7 +6,6 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 
 import java.util.Optional;
 
@@ -31,7 +30,7 @@ public record JarSettings(Optional<ResourceLocation> shell, float scale, float h
 
     public JarSettings {
         shell = shell == null ? Optional.empty() : shell;
-        scale = Mth.clamp(scale, 0.05F, 2.0F);
-        height = Mth.clamp(height, 0.0F, 1.0F);
+        scale = Float.isFinite(scale) ? scale : 0.35F;
+        height = Float.isFinite(height) ? height : 0.0F;
     }
 }
