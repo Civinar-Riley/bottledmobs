@@ -3,7 +3,9 @@ package com.civinar.bottledmobs.client;
 import com.civinar.bottledmobs.BottledMobBlockEntity;
 import com.civinar.bottledmobs.ClientConfig;
 import com.civinar.bottledmobs.DisplayStandBlock;
+import com.civinar.bottledmobs.MobInfo;
 import com.civinar.bottledmobs.MobNbt;
+import com.civinar.bottledmobs.StoredMob;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -29,6 +31,8 @@ import java.util.WeakHashMap;
 public class BottledMobBlockRenderer implements BlockEntityRenderer<BottledMobBlockEntity> {
 
     private static final float SPIN_SPEED = 1.5F;
+    /** Upper bound for the culling box so a huge scaled mob cannot disable culling. */
+    private static final double MAX_EXTENT = 64.0D;
     private static final Map<Direction, Quaternionf> FACING_ROTATIONS = new EnumMap<>(Direction.class);
 
     static {
@@ -42,7 +46,7 @@ public class BottledMobBlockRenderer implements BlockEntityRenderer<BottledMobBl
 
     private final EntityRenderDispatcher entityRenderer;
     private final BlockRenderDispatcher blockRenderer;
-    private final Map<BottledMobBlockEntity, CachedEntity> cache = new WeakHashMap<>();
+    private final Map<BottledMobBlockEntity, DisplayData> cache = new WeakHashMap<>();
 
     public BottledMobBlockRenderer(BlockEntityRendererProvider.Context context) {
         this.entityRenderer = Minecraft.getInstance().getEntityRenderDispatcher();
@@ -52,30 +56,47 @@ public class BottledMobBlockRenderer implements BlockEntityRenderer<BottledMobBl
     @Override
     public AABB getRenderBoundingBox(BottledMobBlockEntity jar) {
         BlockPos pos = jar.getBlockPos();
-        double reach = Math.max(1.0D, jar.getScale() * 4.0D);
-        return new AABB(pos.getX(), pos.getY(), pos.getZ(),
-                pos.getX() + 1.0D, pos.getY() + 1.0D, pos.getZ() + 1.0D)
-                .inflate(reach)
-                .expandTowards(0.0D, reach, 0.0D);
+        StoredMob mob = jar.getMob();
+        float width = MobInfo.displayWidth(mob);
+        DisplayData cached = this.cache.get(jar);
+        // Until the jar has rendered once, allow for a rider stack on top.
+        float height = cached != null && cached.revision() == jar.getRevision()
+                ? cached.groupHeight()
+                : Math.max(MobInfo.displayHeight(mob), 2.0F);
+        double scale = jar.getScale();
+        // Sized from the creature's registered bounding box instead of a fixed
+        // multiple of the scale, which used to overshoot by dozens of blocks.
+        double half = Math.min(MAX_EXTENT, Math.max(1.2D, 0.6D + Math.max(width, height) * scale * 0.6D));
+        double top = Math.min(MAX_EXTENT, 1.5D + height * scale + jar.getHeight());
+        return new AABB(pos.getX() + 0.5D - half, pos.getY() - 0.25D, pos.getZ() + 0.5D - half,
+                pos.getX() + 0.5D + half, pos.getY() + top, pos.getZ() + 0.5D + half);
     }
 
     @Override
     public void render(BottledMobBlockEntity jar, float partialTick, PoseStack pose,
                        MultiBufferSource buffer, int light, int overlay) {
-        Entity entity = this.displayEntity(jar);
+        DisplayData data = this.displayData(jar);
+        boolean animated = animationEnabled();
+        Entity entity = data.entity();
         if (entity != null) {
-            this.animate(entity, jar, partialTick);
+            if (animated) {
+                this.animate(entity, jar, partialTick);
+            }
 
             pose.pushPose();
             pose.translate(0.5, jar.getHeight(), 0.5);
             float scale = jar.getScale();
             pose.scale(scale, scale, scale);
             pose.mulPose(FACING_ROTATIONS.get(jar.getFacing()));
-            JarEntityRenderer.render(entity, this.entityRenderer, pose, buffer, light, partialTick);
+            // A frozen display has to render one steady frame. Passing the live
+            // partial tick makes every model that animates with age in ticks snap
+            // back once per game tick, which reads as trembling.
+            JarEntityRenderer.render(entity, this.entityRenderer, pose, buffer, light,
+                    animated ? partialTick : 0.0F);
             pose.popPose();
         }
 
-        if (jar.hasWater()) {
+        if (data.water()) {
             JarWaterRenderer.render(pose, buffer, light);
             this.spawnBubbles(jar);
         }
@@ -87,10 +108,13 @@ public class BottledMobBlockRenderer implements BlockEntityRenderer<BottledMobBl
             pose.popPose();
         }
 
-        if (!jar.getMob().isEmpty() && !jar.getMob().customName().isEmpty()
-                && !this.hasDisplayStand(jar)) {
-            JarLabelRenderer.render(jar.getMob().customName(), pose, buffer, light);
+        if (!data.label().isEmpty() && !this.hasDisplayStand(jar)) {
+            JarLabelRenderer.render(data.label(), pose, buffer, light);
         }
+    }
+
+    private static boolean animationEnabled() {
+        return ClientConfig.SPEC.isLoaded() && ClientConfig.ANIMATE.get();
     }
 
     private boolean hasDisplayStand(BottledMobBlockEntity jar) {
@@ -110,32 +134,49 @@ public class BottledMobBlockRenderer implements BlockEntityRenderer<BottledMobBl
         level.addParticle(ParticleTypes.BUBBLE, x, y, z, 0.0, 0.01, 0.0);
     }
 
-    @Nullable
-    private Entity displayEntity(BottledMobBlockEntity jar) {
-        if (jar.getMob().isEmpty()) {
-            return null;
-        }
-        CachedEntity cached = this.cache.get(jar);
+    /**
+     * Everything derived from the stored mob, rebuilt only when the block entity
+     * changes. Keeps the per-frame path free of NBT copies, registry lookups and
+     * entity creation.
+     */
+    private DisplayData displayData(BottledMobBlockEntity jar) {
+        DisplayData cached = this.cache.get(jar);
         if (cached != null && cached.revision() == jar.getRevision()) {
-            return cached.entity();
+            return cached;
         }
 
+        StoredMob mob = jar.getMob();
         Level level = jar.getLevel();
-        if (level == null) {
-            return null;
+        Entity entity = null;
+        boolean aquatic = false;
+        float groupHeight = MobInfo.displayHeight(mob);
+        if (!mob.isEmpty() && level != null) {
+            aquatic = MobInfo.isAquatic(mob);
+            entity = MobNbt.create(mob.entityData(), level);
+            if (entity != null) {
+                JarEntityRenderer.prepare(entity, aquatic);
+                groupHeight = groupHeight(entity);
+            }
         }
-        Entity entity = MobNbt.create(jar.getMob().entityData(), level);
-        if (entity == null) {
-            return null;
+
+        DisplayData data = new DisplayData(jar.getRevision(), entity,
+                aquatic && jar.hasDefaultShell(), mob.customName(), groupHeight);
+        this.cache.put(jar, data);
+        return data;
+    }
+
+    /** Sum of the bounding box heights of the root and every rider stacked on it. */
+    private static float groupHeight(Entity entity) {
+        float height = entity.getBbHeight();
+        for (Entity passenger : entity.getPassengers()) {
+            height += groupHeight(passenger);
         }
-        JarEntityRenderer.prepare(entity);
-        this.cache.put(jar, new CachedEntity(jar.getRevision(), entity));
-        return entity;
+        return height;
     }
 
     private void animate(Entity entity, BottledMobBlockEntity jar, float partialTick) {
         Level level = jar.getLevel();
-        if (level == null || !ClientConfig.SPEC.isLoaded() || !ClientConfig.ANIMATE.get()) {
+        if (level == null) {
             return;
         }
 
@@ -144,6 +185,7 @@ public class BottledMobBlockRenderer implements BlockEntityRenderer<BottledMobBl
         JarEntityRenderer.applyYaw(entity, yaw);
     }
 
-    private record CachedEntity(int revision, Entity entity) {
+    private record DisplayData(int revision, @Nullable Entity entity, boolean water, String label,
+                               float groupHeight) {
     }
 }

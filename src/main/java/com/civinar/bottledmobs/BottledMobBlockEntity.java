@@ -92,10 +92,6 @@ public class BottledMobBlockEntity extends BlockEntity {
         return this.shell == null || this.shell == BottledMobs.EMPTY_JAR.get();
     }
 
-    public boolean hasWater() {
-        return !this.mob.isEmpty() && this.hasDefaultShell() && MobInfo.isAquatic(this.mob);
-    }
-
     /**
      * Whether a display stand sits directly below this jar. Used for the curator
      * achievement and by the stand renderer.
@@ -145,12 +141,16 @@ public class BottledMobBlockEntity extends BlockEntity {
             this.updateLightLevel();
             this.updateComparatorSignal();
         }
-        if (!this.powerInitialized) {
+        if (!GameplayConfig.redstoneRelease()) {
+            // Nothing to watch while the feature is off. Drop the baseline so a jar
+            // that is already powered when the config is enabled does not release.
+            this.powerInitialized = false;
+        } else if (!this.powerInitialized) {
             this.wasPowered = this.level.hasNeighborSignal(this.worldPosition);
             this.powerInitialized = true;
         } else {
             boolean powered = this.level.hasNeighborSignal(this.worldPosition);
-            if (GameplayConfig.redstoneRelease() && powered && !this.wasPowered && !this.mob.isEmpty()) {
+            if (powered && !this.wasPowered && !this.mob.isEmpty()) {
                 this.releaseMob();
             }
             this.wasPowered = powered;

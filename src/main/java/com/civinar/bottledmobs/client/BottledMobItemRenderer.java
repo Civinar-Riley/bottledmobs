@@ -49,7 +49,8 @@ public class BottledMobItemRenderer extends BlockEntityWithoutLevelRenderer {
     public void renderByItem(ItemStack stack, ItemDisplayContext displayContext, PoseStack pose,
                              MultiBufferSource buffer, int light, int overlay) {
         StoredMob mob = stack.getOrDefault(BottledMobs.STORED_MOB.get(), StoredMob.EMPTY);
-        Entity entity = this.displayEntity(mob);
+        boolean aquatic = MobInfo.isAquatic(mob);
+        Entity entity = this.displayEntity(mob, aquatic);
 
         if (entity != null) {
             pose.pushPose();
@@ -61,7 +62,7 @@ public class BottledMobItemRenderer extends BlockEntityWithoutLevelRenderer {
             pose.popPose();
         }
 
-        if (MobInfo.isAquatic(mob)) {
+        if (aquatic) {
             JarWaterRenderer.render(pose, buffer, light);
         }
 
@@ -71,7 +72,7 @@ public class BottledMobItemRenderer extends BlockEntityWithoutLevelRenderer {
     }
 
     @Nullable
-    private Entity displayEntity(StoredMob mob) {
+    private Entity displayEntity(StoredMob mob, boolean aquatic) {
         if (mob.isEmpty()) {
             return null;
         }
@@ -91,7 +92,7 @@ public class BottledMobItemRenderer extends BlockEntityWithoutLevelRenderer {
         if (entity == null) {
             return null;
         }
-        JarEntityRenderer.prepare(entity);
+        JarEntityRenderer.prepare(entity, aquatic);
         this.cache.put(mob, entity);
         return entity;
     }

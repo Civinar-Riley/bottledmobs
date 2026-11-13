@@ -42,6 +42,16 @@ public record StoredMob(CompoundTag entityData, String entityId, String customNa
         return this.entityData.copy();
     }
 
+    /**
+     * Read-only view of the stored entity data. The returned tag belongs to this
+     * record and must not be modified; use {@link #entityData()} when a copy is
+     * needed. Read paths that run once per frame (labels, water checks) use this
+     * instead of cloning the whole entity tag.
+     */
+    public CompoundTag dataView() {
+        return this.entityData;
+    }
+
     public boolean isEmpty() {
         return this.entityData.isEmpty();
     }

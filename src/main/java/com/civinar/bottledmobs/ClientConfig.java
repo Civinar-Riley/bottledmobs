@@ -10,7 +10,8 @@ public final class ClientConfig {
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
         ANIMATE = builder
-                .comment("Spin captured mobs and tick their models while displayed.")
+                .comment("Spin captured mobs and tick their models while displayed.",
+                        "When disabled the displayed pose is frozen in place.")
                 .define("animateCapturedMobs", false);
         SPEC = builder.build();
     }

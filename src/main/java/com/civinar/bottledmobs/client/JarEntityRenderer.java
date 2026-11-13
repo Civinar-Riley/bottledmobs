@@ -36,26 +36,39 @@ public final class JarEntityRenderer {
 
     /**
      * Clears the vanilla name tag and zeroes the rotations of the whole group so
-     * the jar's own label is the only name shown.
+     * the jar's own label is the only name shown. Aquatic groups are marked as
+     * being in water so vanilla fish renderers keep them upright instead of
+     * tipping them onto their side.
      */
-    public static void prepare(Entity entity) {
+    public static void prepare(Entity entity, boolean inWater) {
         entity.setCustomName(null);
         entity.setCustomNameVisible(false);
         resetRotations(entity);
+        if (inWater) {
+            markInWater(entity);
+        }
         for (Entity passenger : entity.getPassengers()) {
-            prepare(passenger);
+            prepare(passenger, inWater);
         }
     }
 
     private static void resetRotations(Entity entity) {
         entity.setYRot(0.0F);
         entity.setXRot(0.0F);
+        // The interpolation sources must match the current values, otherwise a
+        // frozen display would slide between them once per game tick.
+        entity.yRotO = 0.0F;
+        entity.xRotO = 0.0F;
         if (entity instanceof LivingEntity living) {
             living.yHeadRot = 0.0F;
             living.yBodyRot = 0.0F;
             living.yHeadRotO = 0.0F;
             living.yBodyRotO = 0.0F;
         }
+    }
+
+    private static void markInWater(Entity entity) {
+        entity.wasTouchingWater = true;
     }
 
     public static void tick(Entity entity) {

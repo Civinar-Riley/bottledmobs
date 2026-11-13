@@ -22,7 +22,7 @@ public final class MobInfo {
     }
 
     public static Component speciesName(StoredMob mob) {
-        return speciesName(mob.entityData()).orElseGet(() -> mob.fallbackName().isEmpty()
+        return speciesName(mob.dataView()).orElseGet(() -> mob.fallbackName().isEmpty()
                 ? Component.translatable("tooltip.bottledmobs.unknown")
                 : Component.literal(mob.fallbackName()));
     }
@@ -32,11 +32,11 @@ public final class MobInfo {
     }
 
     public static Optional<Component> variantName(StoredMob mob) {
-        return VariantRules.resolve(mob.entityData());
+        return VariantRules.resolve(mob.dataView());
     }
 
     public static boolean isBaby(StoredMob mob) {
-        return isBaby(mob.entityData());
+        return isBaby(mob.dataView());
     }
 
     public static boolean isBaby(CompoundTag data) {
@@ -47,9 +47,24 @@ public final class MobInfo {
     }
 
     public static boolean isAquatic(StoredMob mob) {
-        return EntityType.by(mob.entityData())
+        return EntityType.by(mob.dataView())
                 .map(type -> type.is(BottledMobs.AQUATIC_DISPLAY))
                 .orElse(false);
+    }
+
+    /**
+     * Registered bounding box width of the stored creature, used to size the jar
+     * renderer's culling box without instantiating the entity.
+     */
+    public static float displayWidth(StoredMob mob) {
+        return EntityType.by(mob.dataView()).map(EntityType::getWidth).orElse(1.0F);
+    }
+
+    /**
+     * Registered bounding box height of the stored creature.
+     */
+    public static float displayHeight(StoredMob mob) {
+        return EntityType.by(mob.dataView()).map(EntityType::getHeight).orElse(2.0F);
     }
 
     /**
@@ -66,7 +81,7 @@ public final class MobInfo {
      * Number of creatures stored in the jar, counting the root and every rider.
      */
     public static int groupSize(StoredMob mob) {
-        return selfAndPassengers(mob.entityData()).size();
+        return selfAndPassengers(mob.dataView()).size();
     }
 
     /**
@@ -81,7 +96,7 @@ public final class MobInfo {
      * Used for the server-side {@code uncapturable} gate.
      */
     public static boolean hasTag(StoredMob mob, TagKey<EntityType<?>> tag) {
-        for (CompoundTag part : selfAndPassengers(mob.entityData())) {
+        for (CompoundTag part : selfAndPassengers(mob.dataView())) {
             Optional<EntityType<?>> type = EntityType.by(part);
             if (type.isPresent() && type.get().is(tag)) {
                 return true;
@@ -113,7 +128,7 @@ public final class MobInfo {
         if (special.isPresent()) {
             return special.get();
         }
-        List<CompoundTag> parts = selfAndPassengers(mob.entityData());
+        List<CompoundTag> parts = selfAndPassengers(mob.dataView());
         MutableComponent name = rootName(mob, parts.get(0));
         for (int index = 1; index < parts.size(); index++) {
             name = name.append(Component.translatable("tooltip.bottledmobs.group_separator"))
@@ -136,7 +151,7 @@ public final class MobInfo {
     }
 
     private static Optional<Component> jockeyName(StoredMob mob) {
-        List<CompoundTag> parts = selfAndPassengers(mob.entityData());
+        List<CompoundTag> parts = selfAndPassengers(mob.dataView());
         if (parts.size() != 2) {
             return Optional.empty();
         }
