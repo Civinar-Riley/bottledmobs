@@ -108,11 +108,25 @@ public class BottledMobBlockEntity extends BlockEntity {
         this.markUpdated();
     }
 
-    public void setFigureMode() {
-        this.shell = Blocks.AIR;
-        this.scale = Mth.clamp(1.0F, GameplayConfig.minScale(), GameplayConfig.maxScale());
-        this.height = 0.0F;
+    public boolean toggleFigureMode() {
+        if (this.isFigureMode()) {
+            this.shell = null;
+            this.scale = Mth.clamp(DEFAULT_SCALE, GameplayConfig.minScale(), GameplayConfig.maxScale());
+            this.height = 0.0F;
+        } else {
+            this.shell = Blocks.AIR;
+            this.scale = Mth.clamp(1.0F, GameplayConfig.minScale(), GameplayConfig.maxScale());
+            this.height = 0.0F;
+        }
         this.markUpdated();
+        return this.isFigureMode();
+    }
+
+    public boolean isFigureMode() {
+        float figureScale = Mth.clamp(1.0F, GameplayConfig.minScale(), GameplayConfig.maxScale());
+        return this.shell == Blocks.AIR
+                && Math.abs(this.scale - figureScale) < 1.0E-4F
+                && Math.abs(this.height) < 1.0E-4F;
     }
 
     public void rotate() {
@@ -123,7 +137,7 @@ public class BottledMobBlockEntity extends BlockEntity {
 
     public void resetDisplay(@Nullable Direction facing) {
         this.shell = null;
-        this.scale = DEFAULT_SCALE;
+        this.scale = Mth.clamp(DEFAULT_SCALE, GameplayConfig.minScale(), GameplayConfig.maxScale());
         this.height = 0.0F;
         this.facing = facing == null || !facing.getAxis().isHorizontal() ? Direction.NORTH : facing;
         this.markUpdated();

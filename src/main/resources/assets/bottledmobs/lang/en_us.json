@@ -10,7 +10,7 @@
     "tooltip.bottledmobs.usage.1": "Right-click or left-click a creature to capture it",
     "tooltip.bottledmobs.usage.2": "Right-click the ground to release; sneak to place the jar",
     "tooltip.bottledmobs.usage.3": "Placed jar: use any block to replace the shell",
-    "tooltip.bottledmobs.usage.4": "Sword removes the shell; stick gives a full-size figure",
+    "tooltip.bottledmobs.usage.4": "Sword removes the shell; stick toggles full-size figure / default display",
     "tooltip.bottledmobs.usage.5": "Hoe/axe resize the mob; pickaxe/shovel adjust its height",
     "tooltip.bottledmobs.usage.6": "Book and quill copies settings; a written book pastes them",
     "tooltip.bottledmobs.usage.7": "Empty hand: rotate the jar; sneak + empty hand: reset the display",

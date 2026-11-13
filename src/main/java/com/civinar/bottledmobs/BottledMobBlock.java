@@ -176,8 +176,10 @@ public class BottledMobBlock extends BaseEntityBlock {
             jar.lower();
             playSound(level, pos, SoundEvents.ITEM_FRAME_ROTATE_ITEM, 0.9F);
         } else if (stack.is(Items.STICK)) {
-            jar.setFigureMode();
-            playSound(level, pos, SoundEvents.ITEM_FRAME_REMOVE_ITEM, 1.0F);
+            boolean figureMode = jar.toggleFigureMode();
+            playSound(level, pos, figureMode
+                    ? SoundEvents.ITEM_FRAME_REMOVE_ITEM
+                    : SoundEvents.ITEM_FRAME_ADD_ITEM, 1.0F);
         } else if (stack.is(Items.WRITABLE_BOOK)) {
             copySettings(pos, player, hand, jar);
             playSound(level, pos, SoundEvents.BOOK_PAGE_TURN, 1.0F);

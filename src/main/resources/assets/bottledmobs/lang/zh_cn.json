@@ -10,7 +10,7 @@
     "tooltip.bottledmobs.usage.1": "手持空瓶对生物右键或左键，将其封入瓶中",
     "tooltip.bottledmobs.usage.2": "对地面右键放出生物；潜行右键放置为方块",
     "tooltip.bottledmobs.usage.3": "已放置时：手持任意方块右键更换瓶身外观",
-    "tooltip.bottledmobs.usage.4": "剑拆除外壳；木棍切换为原尺寸玩偶",
+    "tooltip.bottledmobs.usage.4": "剑拆除外壳；木棍切换原尺寸玩偶与默认展示",
     "tooltip.bottledmobs.usage.5": "锄/斧调整大小；镐/铲调整高度",
     "tooltip.bottledmobs.usage.6": "书与笔复印设置；成书粘贴设置",
     "tooltip.bottledmobs.usage.7": "空手右键旋转罐子；潜行空手右键恢复默认展示",
