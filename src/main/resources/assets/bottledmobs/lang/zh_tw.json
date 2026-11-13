@@ -13,5 +13,6 @@
     "tooltip.bottledmobs.usage.4": "劍拆除外殼；木棍切換為原尺寸玩偶",
     "tooltip.bottledmobs.usage.5": "鋤/斧調整大小；鎬/鏟調整高度",
     "tooltip.bottledmobs.usage.6": "書與筆複印設定；成書貼上設定",
+    "tooltip.bottledmobs.usage.7": "空手右鍵旋轉罐子；潛行空手右鍵恢復預設展示",
     "message.bottledmobs.cannot_capture_riding": "騎乘中或載有乘客的生物無法捕捉"
 }

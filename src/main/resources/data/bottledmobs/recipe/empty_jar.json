@@ -1,0 +1,21 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "category": "misc",
+    "pattern": [
+        "G G",
+        "G G",
+        " S "
+    ],
+    "key": {
+        "G": {
+            "tag": "c:glass_blocks"
+        },
+        "S": {
+            "tag": "minecraft:wooden_slabs"
+        }
+    },
+    "result": {
+        "id": "bottledmobs:empty_jar",
+        "count": 1
+    }
+}

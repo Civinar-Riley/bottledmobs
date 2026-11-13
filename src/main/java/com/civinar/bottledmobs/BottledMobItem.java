@@ -2,6 +2,7 @@ package com.civinar.bottledmobs;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -54,6 +55,9 @@ public class BottledMobItem extends BlockItem {
                     stack.set(BottledMobs.STORED_MOB.get(), StoredMob.EMPTY);
                     serverLevel.playSound(null, spot.x, spot.y, spot.z,
                             SoundEvents.BOTTLE_EMPTY, SoundSource.PLAYERS, 1.0F, 1.0F);
+                    serverLevel.sendParticles(ParticleTypes.POOF,
+                            spot.x, spot.y + 0.5, spot.z,
+                            8, 0.25, 0.5, 0.25, 0.01);
                 }
             }
             return InteractionResult.sidedSuccess(level.isClientSide);
@@ -118,8 +122,14 @@ public class BottledMobItem extends BlockItem {
 
         stack.set(BottledMobs.STORED_MOB.get(),
                 new StoredMob(data, entityId, customName, fallbackName));
+        stack.remove(BottledMobs.JAR_SETTINGS.get());
         level.playSound(null, target.blockPosition(),
                 SoundEvents.BOTTLE_FILL, SoundSource.PLAYERS, 1.0F, 1.0F);
+        if (level instanceof ServerLevel serverLevel) {
+            serverLevel.sendParticles(ParticleTypes.POOF,
+                    target.getX(), target.getY() + target.getBbHeight() * 0.5, target.getZ(),
+                    8, 0.25, 0.5, 0.25, 0.01);
+        }
         target.discard();
         return true;
     }
@@ -151,7 +161,7 @@ public class BottledMobItem extends BlockItem {
         }
 
         if (Screen.hasShiftDown()) {
-            for (int line = 1; line <= 6; line++) {
+            for (int line = 1; line <= 7; line++) {
                 tooltip.add(Component.translatable("tooltip.bottledmobs.usage." + line)
                         .withStyle(ChatFormatting.GRAY));
             }

@@ -1,5 +1,7 @@
 package com.civinar.bottledmobs;
 
+import com.civinar.bottledmobs.client.ClientSetup;
+import com.civinar.bottledmobs.client.JarSettingsClientHandler;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -17,7 +19,11 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -89,6 +95,17 @@ public final class BottledMobs {
         DATA_COMPONENTS.register(modBus);
 
         modBus.addListener(this::addCreativeTabItems);
+        modBus.addListener(this::registerPayloads);
+
+        if (FMLEnvironment.dist == Dist.CLIENT) {
+            ClientSetup.init(modBus);
+        }
+    }
+
+    private void registerPayloads(RegisterPayloadHandlersEvent event) {
+        PayloadRegistrar registrar = event.registrar("1");
+        registrar.playToClient(JarSettingsPayload.TYPE, JarSettingsPayload.STREAM_CODEC,
+                (payload, context) -> context.enqueueWork(() -> JarSettingsClientHandler.apply(payload)));
     }
 
     private void addCreativeTabItems(BuildCreativeModeTabContentsEvent event) {

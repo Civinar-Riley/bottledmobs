@@ -9,12 +9,15 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -40,7 +43,9 @@ public class BottledMobBlockEntity extends BlockEntity {
     public void acceptItem(ItemStack stack, @Nullable Direction facing) {
         this.mob = stack.getOrDefault(BottledMobs.STORED_MOB.get(), StoredMob.EMPTY);
         this.facing = facing == null ? Direction.NORTH : facing;
-        this.markUpdated();
+        this.revision++;
+        this.setChanged();
+        this.syncFull();
     }
 
     public StoredMob getMob() {
@@ -110,9 +115,23 @@ public class BottledMobBlockEntity extends BlockEntity {
         this.markUpdated();
     }
 
+    public void rotate() {
+        Direction base = this.facing.getAxis().isHorizontal() ? this.facing : Direction.NORTH;
+        this.facing = base.getClockWise(Direction.Axis.Y);
+        this.markUpdated();
+    }
+
+    public void resetDisplay(@Nullable Direction facing) {
+        this.shell = null;
+        this.scale = DEFAULT_SCALE;
+        this.height = 0.0F;
+        this.facing = facing == null || !facing.getAxis().isHorizontal() ? Direction.NORTH : facing;
+        this.markUpdated();
+    }
+
     public JarSettings copySettings() {
         ResourceLocation shellId = this.shell == null ? null : BuiltInRegistries.BLOCK.getKey(this.shell);
-        return new JarSettings(Optional.ofNullable(shellId), this.scale, this.height);
+        return new JarSettings(Optional.ofNullable(shellId), this.scale, this.height, this.facing);
     }
 
     public void applySettings(JarSettings settings) {
@@ -121,7 +140,20 @@ public class BottledMobBlockEntity extends BlockEntity {
         this.height = clamp(settings.height(),
                 GameplayConfig.minHeight(), GameplayConfig.maxHeight(), 0.0F);
         this.shell = shellFromId(settings.shell());
+        this.facing = settings.facing();
         this.markUpdated();
+    }
+
+    /**
+     * Applies values that have already been clamped by the server. No config is
+     * read here: a remote client may not have the server's config file.
+     */
+    public void applySyncedSettings(JarSettings settings) {
+        this.scale = clamp(settings.scale(), SAFE_MIN_SCALE, SAFE_MAX_SCALE, DEFAULT_SCALE);
+        this.height = clamp(settings.height(), 0.0F, SAFE_MAX_HEIGHT, 0.0F);
+        this.shell = shellFromId(settings.shell());
+        this.facing = settings.facing();
+        this.revision++;
     }
 
     private static float clamp(float value, float min, float max, float fallback) {
@@ -163,11 +195,13 @@ public class BottledMobBlockEntity extends BlockEntity {
     private void markUpdated() {
         this.revision++;
         this.setChanged();
+        if (this.level instanceof ServerLevel serverLevel) {
+            PacketDistributor.sendToPlayersTrackingChunk(serverLevel, new ChunkPos(this.worldPosition),
+                    new JarSettingsPayload(this.worldPosition, this.copySettings()));
+        }
     }
 
-    @Override
-    public void setChanged() {
-        super.setChanged();
+    private void syncFull() {
         if (this.level != null && !this.level.isClientSide) {
             this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), Block.UPDATE_CLIENTS);
         }
@@ -216,5 +250,6 @@ public class BottledMobBlockEntity extends BlockEntity {
         if (!this.mob.isEmpty()) {
             stack.set(BottledMobs.STORED_MOB.get(), this.mob);
         }
+        stack.set(BottledMobs.JAR_SETTINGS.get(), this.copySettings());
     }
 }

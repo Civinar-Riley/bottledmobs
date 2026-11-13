@@ -10,11 +10,13 @@ import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import org.joml.Quaternionf;
 
@@ -44,6 +46,16 @@ public class BottledMobBlockRenderer implements BlockEntityRenderer<BottledMobBl
     public BottledMobBlockRenderer(BlockEntityRendererProvider.Context context) {
         this.entityRenderer = Minecraft.getInstance().getEntityRenderDispatcher();
         this.blockRenderer = context.getBlockRenderDispatcher();
+    }
+
+    @Override
+    public AABB getRenderBoundingBox(BottledMobBlockEntity jar) {
+        BlockPos pos = jar.getBlockPos();
+        double reach = Math.max(1.0D, jar.getScale() * 4.0D);
+        return new AABB(pos.getX(), pos.getY(), pos.getZ(),
+                pos.getX() + 1.0D, pos.getY() + 1.0D, pos.getZ() + 1.0D)
+                .inflate(reach)
+                .expandTowards(0.0D, reach, 0.0D);
     }
 
     @Override

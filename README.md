@@ -6,6 +6,8 @@
 
 Minecraft 1.21.1 · NeoForge 21.1.252 · Java 21
 
+[![Build](https://github.com/Civinar-Riley/bottledmobs/actions/workflows/build.yml/badge.svg)](https://github.com/Civinar-Riley/bottledmobs/actions/workflows/build.yml)
+
 </div>
 
 ---
@@ -31,9 +33,12 @@ Minecraft 1.21.1 · NeoForge 21.1.252 · Java 21
 | 镐 / 铲右键 | 升高 / 降低生物，默认 0–1 格、每下 1/16 格，可在服务端配置中调整 |
 | 书与笔右键 | 把当前展示设置复印成一本成书 |
 | 成书右键 | 把书里记录的设置粘贴到该罐子 |
+| 空手右键 | 旋转罐子朝向 90° |
+| 潜行 + 空手右键 | 恢复默认外壳、大小、高度，朝向对玩家 |
 
 - 物品名显示瓶内生物，随客户端语言实时解析；命名牌自定义名优先。
 - 展示中的生物会缓慢旋转并播放模型动画，可在客户端配置中关闭。
+- 破坏、爆炸、中键复制都会保留瓶内生物和展示设置；捕获新生物时展示设置恢复默认。
 - 简体中文、繁体中文、英文三种语言。
 
 ## 合成
@@ -45,8 +50,21 @@ GGG
 ```
 
 - `W`：任意木质台阶
-- `G`：玻璃
+- `G`：任意常见玻璃方块（`c:glass_blocks`）
 - `B`：玻璃瓶
+
+产物为 1 个空的瓶中生物。
+
+空罐方块（默认外壳）另有配方：
+
+```text
+G G
+G G
+ S
+```
+
+- `G`：任意常见玻璃方块
+- `S`：任意木质台阶
 
 产物为 1 个空罐。
 
@@ -54,7 +72,7 @@ GGG
 
 - Minecraft **1.21.1** + NeoForge **21.1.252**（21.1.x 系列）
 - 客户端与服务端都需要安装
-- 从 [Releases](https://github.com/Civinar-Riley/bottledmobs/releases) 下载 `bottledmobs-neoforge-1.0.2.jar`
+- 从 [Releases](https://github.com/Civinar-Riley/bottledmobs/releases) 下载 `bottledmobs-neoforge-1.1.0.jar`
 - 把 jar 放进 `mods` 文件夹
 
 ## 配置
@@ -91,7 +109,6 @@ GGG
 
 - 骑乘中或载有乘客的生物无法捕获。
 - 缩放与高度范围由服务端配置决定，默认缩放 0.1–3.0 倍、高度 0–1 格。
-- 只有玩家破坏方块时才会掉落带生物数据的物品；爆炸、活塞等非玩家破坏会丢失瓶内生物。
 - 与旧 MobBottle 的物品和存档不兼容（mod id 不同，方块与物品是全新的）。
 
 ## 从源码构建
@@ -102,7 +119,7 @@ GGG
 ./gradlew build
 ```
 
-产物位于 `build/libs/bottledmobs-neoforge-1.0.2.jar`。
+产物位于 `build/libs/bottledmobs-neoforge-1.1.0.jar`。
 
 ## 授权
 
