@@ -84,7 +84,7 @@ public final class JadePlugin implements IWailaPlugin {
             if (MobInfo.isAquatic(mob)) {
                 tooltip.add(Component.translatable("tooltip.bottledmobs.aquatic").withStyle(ChatFormatting.GRAY));
             }
-            if (GlowRules.lightFor(mob.entityData()) > 0) {
+            if (GlowRules.lightFor(mob.dataView()) > 0) {
                 tooltip.add(Component.translatable("tooltip.bottledmobs.glowing").withStyle(ChatFormatting.GRAY));
             }
         }

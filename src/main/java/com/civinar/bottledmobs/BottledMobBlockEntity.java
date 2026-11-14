@@ -262,7 +262,7 @@ public class BottledMobBlockEntity extends BlockEntity {
     public boolean toggleFigureMode() {
         if (this.isFigureMode()) {
             this.shell = null;
-            this.scale = Mth.clamp(DEFAULT_SCALE, GameplayConfig.minScale(), GameplayConfig.maxScale());
+            this.scale = GameplayConfig.defaultScale();
             this.height = 0.0F;
         } else {
             this.shell = Blocks.AIR;
@@ -292,7 +292,7 @@ public class BottledMobBlockEntity extends BlockEntity {
 
     public void resetDisplay(@Nullable Direction facing) {
         this.shell = null;
-        this.scale = Mth.clamp(DEFAULT_SCALE, GameplayConfig.minScale(), GameplayConfig.maxScale());
+        this.scale = GameplayConfig.defaultScale();
         this.height = 0.0F;
         this.facing = facing == null || !facing.getAxis().isHorizontal() ? Direction.NORTH : facing;
         this.markUpdated();
