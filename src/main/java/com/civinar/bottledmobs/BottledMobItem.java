@@ -116,6 +116,16 @@ public class BottledMobItem extends BlockItem {
             return true;
         }
 
+        // A player can only end up as a passenger through /ride, but capturing the
+        // stack would discard them together with the root, so refuse it outright.
+        for (Entity member : target.getSelfAndPassengers().toList()) {
+            if (member instanceof Player) {
+                player.displayClientMessage(
+                        Component.translatable("message.bottledmobs.cannot_capture_riding"), true);
+                return true;
+            }
+        }
+
         boolean group = !target.getPassengers().isEmpty();
         if (group && !GameplayConfig.capturePassengerStacks()) {
             player.displayClientMessage(
