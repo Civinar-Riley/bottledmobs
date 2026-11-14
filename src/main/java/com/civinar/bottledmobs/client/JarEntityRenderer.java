@@ -71,10 +71,15 @@ public final class JarEntityRenderer {
         entity.wasTouchingWater = true;
     }
 
-    public static void tick(Entity entity) {
-        entity.tickCount++;
+    /**
+     * Sets the model age of the whole group. Age follows game time instead of
+     * counting render frames, so idle animations run at the same 20 ticks per
+     * second as a living mob no matter the client's frame rate.
+     */
+    public static void setAge(Entity entity, int age) {
+        entity.tickCount = age;
         for (Entity passenger : entity.getPassengers()) {
-            tick(passenger);
+            setAge(passenger, age);
         }
     }
 

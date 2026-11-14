@@ -149,5 +149,6 @@
     "advancements.bottledmobs.aquarium.title": "Aquarium",
     "advancements.bottledmobs.aquarium.description": "Display an aquatic creature in a jar",
     "advancements.bottledmobs.night_light.title": "Night Light",
-    "advancements.bottledmobs.night_light.description": "Display a glowing creature and light up the room"
+    "advancements.bottledmobs.night_light.description": "Display a glowing creature and light up the room",
+    "variant.bottledmobs.cat.all_black": "All Black"
 }

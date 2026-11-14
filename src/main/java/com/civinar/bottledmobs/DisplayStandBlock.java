@@ -27,6 +27,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nullable;
+import java.util.Map;
 
 /**
  * A pedestal or wall bracket that grows a label for the jar directly above it.
@@ -39,9 +40,24 @@ public class DisplayStandBlock extends BaseEntityBlock {
 
     private static final VoxelShape FLOOR_SHAPE =
             Shapes.box(2.0 / 16.0, 0.0, 2.0 / 16.0, 14.0 / 16.0, 1.0, 14.0 / 16.0);
-    private static final VoxelShape WALL_SHAPE = Shapes.or(
-            Shapes.box(2.0 / 16.0, 12.0 / 16.0, 2.0 / 16.0, 14.0 / 16.0, 1.0, 1.0),
-            Shapes.box(3.0 / 16.0, 4.0 / 16.0, 13.0 / 16.0, 13.0 / 16.0, 12.0 / 16.0, 1.0));
+    /**
+     * Wall bracket shapes per {@link #FACING}, matching the wall model's own
+     * rotation convention: facing north keeps the unrotated geometry, whose
+     * bracket hugs the south face because the wall it mounts on is to the south.
+     */
+    private static final Map<Direction, VoxelShape> WALL_SHAPES = Map.of(
+            Direction.NORTH, Shapes.or(
+                    Shapes.box(2.0 / 16.0, 12.0 / 16.0, 2.0 / 16.0, 14.0 / 16.0, 1.0, 1.0),
+                    Shapes.box(3.0 / 16.0, 4.0 / 16.0, 13.0 / 16.0, 13.0 / 16.0, 12.0 / 16.0, 1.0)),
+            Direction.EAST, Shapes.or(
+                    Shapes.box(0.0, 12.0 / 16.0, 2.0 / 16.0, 14.0 / 16.0, 1.0, 14.0 / 16.0),
+                    Shapes.box(0.0, 4.0 / 16.0, 3.0 / 16.0, 3.0 / 16.0, 12.0 / 16.0, 13.0 / 16.0)),
+            Direction.SOUTH, Shapes.or(
+                    Shapes.box(2.0 / 16.0, 12.0 / 16.0, 0.0, 14.0 / 16.0, 1.0, 14.0 / 16.0),
+                    Shapes.box(3.0 / 16.0, 4.0 / 16.0, 0.0, 13.0 / 16.0, 12.0 / 16.0, 3.0 / 16.0)),
+            Direction.WEST, Shapes.or(
+                    Shapes.box(2.0 / 16.0, 12.0 / 16.0, 2.0 / 16.0, 1.0, 1.0, 14.0 / 16.0),
+                    Shapes.box(13.0 / 16.0, 4.0 / 16.0, 3.0 / 16.0, 1.0, 12.0 / 16.0, 13.0 / 16.0)));
 
     public DisplayStandBlock(BlockBehaviour.Properties properties) {
         super(properties);
@@ -94,7 +110,9 @@ public class DisplayStandBlock extends BaseEntityBlock {
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return state.getValue(WALL) ? WALL_SHAPE : FLOOR_SHAPE;
+        return state.getValue(WALL)
+                ? WALL_SHAPES.get(state.getValue(FACING))
+                : FLOOR_SHAPE;
     }
 
     @Override

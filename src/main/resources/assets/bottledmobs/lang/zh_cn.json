@@ -149,5 +149,6 @@
     "advancements.bottledmobs.aquarium.title": "水族馆",
     "advancements.bottledmobs.aquarium.description": "把水生生物装进罐子里展出",
     "advancements.bottledmobs.night_light.title": "夜灯",
-    "advancements.bottledmobs.night_light.description": "把发光生物放进罐子里照亮房间"
+    "advancements.bottledmobs.night_light.description": "把发光生物放进罐子里照亮房间",
+    "variant.bottledmobs.cat.all_black": "纯黑猫"
 }

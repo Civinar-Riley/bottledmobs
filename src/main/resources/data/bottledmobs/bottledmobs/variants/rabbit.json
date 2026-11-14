@@ -38,7 +38,7 @@
   {
     "entity": "minecraft:rabbit",
     "path": "RabbitType",
-    "value": 6,
+    "value": 99,
     "name": "variant.bottledmobs.rabbit.evil"
   }
 ]

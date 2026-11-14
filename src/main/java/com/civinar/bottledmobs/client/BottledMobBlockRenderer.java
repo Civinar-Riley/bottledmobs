@@ -180,7 +180,9 @@ public class BottledMobBlockRenderer implements BlockEntityRenderer<BottledMobBl
             return;
         }
 
-        JarEntityRenderer.tick(entity);
+        // The 2^23 wrap keeps tickCount within float precision for partial ticks;
+        // it lands after ~4.8 days of server uptime and only resets idle-pose phase.
+        JarEntityRenderer.setAge(entity, (int) (level.getGameTime() % (1L << 23)));
         float yaw = (level.getGameTime() % 360000L + partialTick) * SPIN_SPEED;
         JarEntityRenderer.applyYaw(entity, yaw);
     }

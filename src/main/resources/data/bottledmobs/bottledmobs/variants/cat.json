@@ -58,5 +58,11 @@
     "path": "variant",
     "value": "minecraft:jellie",
     "name": "variant.bottledmobs.cat.jellie"
+  },
+  {
+    "entity": "minecraft:cat",
+    "path": "variant",
+    "value": "minecraft:all_black",
+    "name": "variant.bottledmobs.cat.all_black"
   }
 ]

@@ -231,6 +231,9 @@ public class BottledMobBlock extends BaseEntityBlock {
         Block shell = Block.byItem(stack.getItem());
         if (!shell.defaultBlockState().isAir()) {
             jar.setShell(shell);
+            if (!player.isCreative()) {
+                stack.shrink(1);
+            }
             playSound(level, pos, SoundEvents.ITEM_FRAME_ADD_ITEM, 1.0F);
             return ItemInteractionResult.SUCCESS;
         }
