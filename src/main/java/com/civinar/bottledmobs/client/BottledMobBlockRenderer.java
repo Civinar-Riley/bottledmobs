@@ -2,7 +2,6 @@ package com.civinar.bottledmobs.client;
 
 import com.civinar.bottledmobs.BottledMobBlockEntity;
 import com.civinar.bottledmobs.ClientConfig;
-import com.civinar.bottledmobs.DisplayStandBlock;
 import com.civinar.bottledmobs.MobInfo;
 import com.civinar.bottledmobs.MobNbt;
 import com.civinar.bottledmobs.StoredMob;
@@ -108,19 +107,13 @@ public class BottledMobBlockRenderer implements BlockEntityRenderer<BottledMobBl
             pose.popPose();
         }
 
-        if (!data.label().isEmpty() && !this.hasDisplayStand(jar)) {
+        if (!data.label().isEmpty()) {
             JarLabelRenderer.render(data.label(), pose, buffer, light);
         }
     }
 
     private static boolean animationEnabled() {
         return ClientConfig.SPEC.isLoaded() && ClientConfig.ANIMATE.get();
-    }
-
-    private boolean hasDisplayStand(BottledMobBlockEntity jar) {
-        Level level = jar.getLevel();
-        return level != null
-                && level.getBlockState(jar.getBlockPos().below()).getBlock() instanceof DisplayStandBlock;
     }
 
     private void spawnBubbles(BottledMobBlockEntity jar) {

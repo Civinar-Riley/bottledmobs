@@ -54,14 +54,18 @@ public class BottledMobItem extends BlockItem {
                 Entity entity = MobNbt.create(mob.entityData(), serverLevel);
                 if (entity != null) {
                     Vec3 spot = context.getClickLocation();
-                    entity.moveTo(spot.x, spot.y, spot.z, player.getYRot(), 0.0F);
-                    serverLevel.addFreshEntityWithPassengers(entity);
-                    stack.set(BottledMobs.STORED_MOB.get(), StoredMob.EMPTY);
-                    serverLevel.playSound(null, spot.x, spot.y, spot.z,
-                            SoundEvents.BOTTLE_EMPTY, SoundSource.PLAYERS, 1.0F, 1.0F);
-                    serverLevel.sendParticles(ParticleTypes.POOF,
-                            spot.x, spot.y + 0.5, spot.z,
-                            8, 0.25, 0.5, 0.25, 0.01);
+                    if (MobNbt.findFreeSpot(serverLevel, entity, spot, player.getYRot())) {
+                        serverLevel.addFreshEntityWithPassengers(entity);
+                        stack.set(BottledMobs.STORED_MOB.get(), StoredMob.EMPTY);
+                        serverLevel.playSound(null, spot.x, spot.y, spot.z,
+                                SoundEvents.BOTTLE_EMPTY, SoundSource.PLAYERS, 1.0F, 1.0F);
+                        serverLevel.sendParticles(ParticleTypes.POOF,
+                                spot.x, spot.y + 0.5, spot.z,
+                                8, 0.25, 0.5, 0.25, 0.01);
+                    } else {
+                        player.displayClientMessage(
+                                Component.translatable("message.bottledmobs.no_space"), true);
+                    }
                 }
             }
             return InteractionResult.sidedSuccess(level.isClientSide);

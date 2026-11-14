@@ -23,6 +23,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import javax.annotation.Nullable;
@@ -93,14 +94,13 @@ public class BottledMobBlockEntity extends BlockEntity {
     }
 
     /**
-     * Whether a display stand sits directly below this jar. Used for the curator
-     * achievement and by the stand renderer.
+     * Initial display scale for a jar placed without saved settings, from the server
+     * config. Server-side only; the value reaches the client through the settings
+     * payload since a remote client may not have the server's config file.
      */
-    public boolean isOnDisplayStand() {
-        if (this.level == null) {
-            return false;
-        }
-        return this.level.getBlockState(this.worldPosition.below()).getBlock() instanceof DisplayStandBlock;
+    public void applyDefaultScale() {
+        this.scale = GameplayConfig.defaultScale();
+        this.markUpdated();
     }
 
     public void renameMob(String name) {
@@ -205,8 +205,11 @@ public class BottledMobBlockEntity extends BlockEntity {
             return;
         }
         BlockPos spawn = this.worldPosition.relative(this.facing);
-        entity.moveTo(spawn.getX() + 0.5, spawn.getY() + 0.5, spawn.getZ() + 0.5,
-                this.facing.toYRot(), 0.0F);
+        Vec3 spot = new Vec3(spawn.getX() + 0.5, spawn.getY() + 0.5, spawn.getZ() + 0.5);
+        if (!MobNbt.findFreeSpot(serverLevel, entity, spot, this.facing.toYRot())) {
+            // No room anywhere around the jar; keep the mob bottled for the next pulse.
+            return;
+        }
         serverLevel.addFreshEntityWithPassengers(entity);
 
         this.mob = StoredMob.EMPTY;
@@ -271,7 +274,11 @@ public class BottledMobBlockEntity extends BlockEntity {
     }
 
     public boolean isFigureMode() {
-        float figureScale = Mth.clamp(1.0F, GameplayConfig.minScale(), GameplayConfig.maxScale());
+        // A remote client has no server config loaded; synced BE data always sits
+        // within the safe bounds, so the plain 1.0 clamp is equivalent there.
+        float figureScale = GameplayConfig.SPEC.isLoaded()
+                ? Mth.clamp(1.0F, GameplayConfig.minScale(), GameplayConfig.maxScale())
+                : 1.0F;
         return this.shell == Blocks.AIR
                 && Math.abs(this.scale - figureScale) < 1.0E-4F
                 && Math.abs(this.height) < 1.0E-4F;

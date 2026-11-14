@@ -133,14 +133,31 @@ public class BottledMobBlock extends BaseEntityBlock {
                             ItemStack stack) {
         if (level.getBlockEntity(pos) instanceof BottledMobBlockEntity jar) {
             jar.acceptItem(stack, placer == null ? Direction.NORTH : placer.getDirection());
-            JarSettings settings = stack.get(BottledMobs.JAR_SETTINGS.get());
-            if (!level.isClientSide && settings != null) {
-                jar.applySettings(settings);
-            }
-            if (!level.isClientSide && placer instanceof ServerPlayer serverPlayer) {
-                BottledMobsAchievements.onDisplay(serverPlayer, jar);
+            if (!level.isClientSide) {
+                JarSettings settings = stack.get(BottledMobs.JAR_SETTINGS.get());
+                if (settings != null) {
+                    jar.applySettings(settings);
+                } else {
+                    jar.applyDefaultScale();
+                }
+                if (placer instanceof ServerPlayer serverPlayer) {
+                    BottledMobsAchievements.onDisplay(serverPlayer, jar);
+                }
             }
         }
+    }
+
+    @Override
+    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        // The creative break path never runs getDrops, so the drop has to be spawned
+        // here or the stored mob would be deleted along with the jar.
+        if (!level.isClientSide && player.isCreative()
+                && level.getBlockEntity(pos) instanceof BottledMobBlockEntity jar) {
+            ItemStack drop = new ItemStack(BottledMobs.BOTTLED_MOB_ITEM.get());
+            jar.saveToItem(drop, level.registryAccess());
+            Block.popResource(level, pos, drop);
+        }
+        return super.playerWillDestroy(level, pos, state, player);
     }
 
     @Override

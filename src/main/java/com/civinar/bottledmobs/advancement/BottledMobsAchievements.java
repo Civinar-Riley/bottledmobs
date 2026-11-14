@@ -94,9 +94,6 @@ public final class BottledMobsAchievements {
         if (GlowRules.lightFor(mob.entityData()) > 0) {
             fire(player, "night_light");
         }
-        if (jar.isOnDisplayStand()) {
-            fire(player, "curator");
-        }
     }
 
     private static void fire(ServerPlayer player, String action) {

@@ -9,12 +9,14 @@ import net.minecraft.advancements.CriterionTrigger;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -27,7 +29,6 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -61,6 +62,9 @@ public final class BottledMobs {
     public static final DeferredRegister<CriterionTrigger<?>> CRITERIA =
             DeferredRegister.create(Registries.TRIGGER_TYPE, MOD_ID);
 
+    public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS =
+            DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MOD_ID);
+
     public static final DeferredHolder<CriterionTrigger<?>, BottledMobsTrigger> COLLECT_TRIGGER =
             CRITERIA.register("collect", () -> BottledMobsTrigger.INSTANCE);
 
@@ -84,33 +88,15 @@ public final class BottledMobs {
                     .isSuffocating((state, level, pos) -> false)
                     .pushReaction(PushReaction.BLOCK)));
 
-    public static final DeferredBlock<Block> DISPLAY_STAND = BLOCKS.register("display_stand",
-            () -> new DisplayStandBlock(BlockBehaviour.Properties.of()
-                    .mapColor(MapColor.STONE)
-                    .strength(1.5F)
-                    .sound(SoundType.STONE)
-                    .noOcclusion()
-                    .isRedstoneConductor((state, level, pos) -> false)
-                    .isSuffocating((state, level, pos) -> false)
-                    .pushReaction(PushReaction.BLOCK)));
-
     public static final DeferredItem<BlockItem> BOTTLED_MOB_ITEM = ITEMS.register("bottled_mob",
             () -> new BottledMobItem(BOTTLED_MOB.get(), new Item.Properties()));
 
     public static final DeferredItem<BlockItem> EMPTY_JAR_ITEM =
             ITEMS.registerSimpleBlockItem("empty_jar", EMPTY_JAR);
 
-    public static final DeferredItem<BlockItem> DISPLAY_STAND_ITEM =
-            ITEMS.register("display_stand",
-                    () -> new DisplayStandItem(DISPLAY_STAND.get(), new Item.Properties()));
-
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BottledMobBlockEntity>> BOTTLED_MOB_BE =
             BLOCK_ENTITIES.register("bottled_mob",
                     () -> BlockEntityType.Builder.of(BottledMobBlockEntity::new, BOTTLED_MOB.get()).build(null));
-
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<DisplayStandBlockEntity>> DISPLAY_STAND_BE =
-            BLOCK_ENTITIES.register("display_stand",
-                    () -> BlockEntityType.Builder.of(DisplayStandBlockEntity::new, DISPLAY_STAND.get()).build(null));
 
     public static final Supplier<DataComponentType<StoredMob>> STORED_MOB =
             DATA_COMPONENTS.registerComponentType("stored_mob", builder -> builder
@@ -122,6 +108,16 @@ public final class BottledMobs {
                     .persistent(JarSettings.CODEC)
                     .networkSynchronized(JarSettings.STREAM_CODEC));
 
+    public static final Supplier<CreativeModeTab> MAIN_TAB = CREATIVE_MODE_TABS.register("main",
+            () -> CreativeModeTab.builder()
+                    .title(Component.translatable("itemGroup.bottledmobs"))
+                    .icon(() -> new ItemStack(EMPTY_JAR_ITEM.get()))
+                    .displayItems((parameters, output) -> {
+                        output.accept(EMPTY_JAR_ITEM.get());
+                        output.accept(BOTTLED_MOB_ITEM.get());
+                    })
+                    .build());
+
     public BottledMobs(IEventBus modBus, ModContainer container) {
         container.registerConfig(ModConfig.Type.CLIENT, ClientConfig.SPEC);
         container.registerConfig(ModConfig.Type.SERVER, GameplayConfig.SPEC);
@@ -131,9 +127,9 @@ public final class BottledMobs {
         BLOCK_ENTITIES.register(modBus);
         DATA_COMPONENTS.register(modBus);
         CRITERIA.register(modBus);
+        CREATIVE_MODE_TABS.register(modBus);
         BottledMobsAchievements.register(modBus);
 
-        modBus.addListener(this::addCreativeTabItems);
         modBus.addListener(this::registerPayloads);
         NeoForge.EVENT_BUS.addListener(BottledMobsCommand::register);
 
@@ -149,13 +145,5 @@ public final class BottledMobs {
         PayloadRegistrar registrar = event.registrar("1");
         registrar.playToClient(JarSettingsPayload.TYPE, JarSettingsPayload.STREAM_CODEC,
                 (payload, context) -> context.enqueueWork(() -> JarSettingsClientHandler.apply(payload)));
-    }
-
-    private void addCreativeTabItems(BuildCreativeModeTabContentsEvent event) {
-        if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
-            event.accept(EMPTY_JAR_ITEM.get());
-            event.accept(DISPLAY_STAND_ITEM.get());
-            event.accept(BOTTLED_MOB_ITEM.get());
-        }
     }
 }
