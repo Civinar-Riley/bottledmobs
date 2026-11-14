@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🫙 瓶中生物 · Bottled Mobs
+<img src="assets/bottledmobs_cover.png" alt="瓶中生物 · Bottled Mobs" width="480">
 
 **把生物封进玻璃罐，摆出来，再慢慢折腾。**
 
