@@ -34,6 +34,8 @@ public final class BottledMobsCommand {
 
     private static final SimpleCommandExceptionType ERROR_NOT_LIVING = new SimpleCommandExceptionType(
             Component.translatable("command.bottledmobs.give.not_living"));
+    private static final SimpleCommandExceptionType ERROR_SAVE = new SimpleCommandExceptionType(
+            Component.translatable("message.bottledmobs.capture_failed"));
 
     private BottledMobsCommand() {
     }
@@ -60,23 +62,12 @@ public final class BottledMobsCommand {
         CommandSourceStack source = context.getSource();
         ServerLevel level = source.getLevel();
 
-        Entity entity = type.create(level);
-        if (!(entity instanceof LivingEntity)) {
-            throw ERROR_NOT_LIVING.create();
-        }
-
         String customName = name == null || name.isBlank() ? "" : name;
-        if (!customName.isEmpty()) {
-            entity.setCustomName(Component.literal(customName));
-        }
-        CompoundTag data = MobNbt.save(entity);
-        StoredMob stored = new StoredMob(data,
-                BuiltInRegistries.ENTITY_TYPE.getKey(type).toString(),
-                customName,
-                entity.getDisplayName().getString());
-
         Collection<ServerPlayer> players = EntityArgument.getPlayers(context, "targets");
+        Component filled = null;
         for (ServerPlayer player : players) {
+            StoredMob stored = createMob(type, level, customName);
+            filled = stored.displayName();
             ItemStack stack = new ItemStack(BottledMobs.BOTTLED_MOB_ITEM.get());
             stack.set(BottledMobs.STORED_MOB.get(), stored);
             if (!player.getInventory().add(stack)) {
@@ -85,9 +76,27 @@ public final class BottledMobsCommand {
         }
 
         int count = players.size();
-        Component filled = stored.displayName();
-        source.sendSuccess(() -> Component.translatable("command.bottledmobs.give.success",
-                filled, count), true);
+        Component message = Component.translatable("command.bottledmobs.give.success", filled, count);
+        source.sendSuccess(() -> message, true);
         return count;
+    }
+
+    static StoredMob createMob(EntityType<?> type, ServerLevel level, String customName)
+            throws CommandSyntaxException {
+        Entity entity = type.create(level);
+        if (!(entity instanceof LivingEntity)) {
+            throw ERROR_NOT_LIVING.create();
+        }
+        if (!customName.isEmpty()) {
+            entity.setCustomName(Component.literal(customName));
+        }
+        CompoundTag data = MobNbt.save(entity);
+        if (data == null) {
+            throw ERROR_SAVE.create();
+        }
+        return new StoredMob(data,
+                BuiltInRegistries.ENTITY_TYPE.getKey(type).toString(),
+                customName,
+                entity.getDisplayName().getString());
     }
 }

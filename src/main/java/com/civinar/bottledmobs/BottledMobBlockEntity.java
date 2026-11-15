@@ -100,6 +100,7 @@ public class BottledMobBlockEntity extends BlockEntity {
      */
     public void applyDefaultScale() {
         this.scale = GameplayConfig.defaultScale();
+        this.height = GameplayConfig.minHeight();
         this.markUpdated();
     }
 
@@ -133,8 +134,17 @@ public class BottledMobBlockEntity extends BlockEntity {
     }
 
     public void serverTick() {
-        if (this.level == null) {
+        if (this.level == null || this.level.isClientSide) {
             return;
+        }
+        float scale = clamp(this.scale, GameplayConfig.minScale(), GameplayConfig.maxScale(),
+                GameplayConfig.defaultScale());
+        float height = clamp(this.height, GameplayConfig.minHeight(), GameplayConfig.maxHeight(),
+                GameplayConfig.minHeight());
+        if (this.scale != scale || this.height != height) {
+            this.scale = scale;
+            this.height = height;
+            this.markUpdated();
         }
         if (!this.lightInitialized) {
             this.lightInitialized = true;
@@ -210,7 +220,10 @@ public class BottledMobBlockEntity extends BlockEntity {
             // No room anywhere around the jar; keep the mob bottled for the next pulse.
             return;
         }
-        serverLevel.addFreshEntityWithPassengers(entity);
+        if (!MobNbt.addToLevel(serverLevel, entity)) {
+            BottledMobs.LOGGER.warn("Could not add the captured mob to the level at {}", this.worldPosition);
+            return;
+        }
 
         this.mob = StoredMob.EMPTY;
         this.revision++;
@@ -263,11 +276,11 @@ public class BottledMobBlockEntity extends BlockEntity {
         if (this.isFigureMode()) {
             this.shell = null;
             this.scale = GameplayConfig.defaultScale();
-            this.height = 0.0F;
+            this.height = GameplayConfig.minHeight();
         } else {
             this.shell = Blocks.AIR;
             this.scale = Mth.clamp(1.0F, GameplayConfig.minScale(), GameplayConfig.maxScale());
-            this.height = 0.0F;
+            this.height = GameplayConfig.minHeight();
         }
         this.markUpdated();
         return this.isFigureMode();
@@ -279,9 +292,10 @@ public class BottledMobBlockEntity extends BlockEntity {
         float figureScale = GameplayConfig.SPEC.isLoaded()
                 ? Mth.clamp(1.0F, GameplayConfig.minScale(), GameplayConfig.maxScale())
                 : 1.0F;
+        float figureHeight = GameplayConfig.SPEC.isLoaded() ? GameplayConfig.minHeight() : 0.0F;
         return this.shell == Blocks.AIR
                 && Math.abs(this.scale - figureScale) < 1.0E-4F
-                && Math.abs(this.height) < 1.0E-4F;
+                && Math.abs(this.height - figureHeight) < 1.0E-4F;
     }
 
     public void rotate() {
@@ -293,7 +307,7 @@ public class BottledMobBlockEntity extends BlockEntity {
     public void resetDisplay(@Nullable Direction facing) {
         this.shell = null;
         this.scale = GameplayConfig.defaultScale();
-        this.height = 0.0F;
+        this.height = GameplayConfig.minHeight();
         this.facing = facing == null || !facing.getAxis().isHorizontal() ? Direction.NORTH : facing;
         this.markUpdated();
     }
@@ -305,9 +319,9 @@ public class BottledMobBlockEntity extends BlockEntity {
 
     public void applySettings(JarSettings settings) {
         this.scale = clamp(settings.scale(),
-                GameplayConfig.minScale(), GameplayConfig.maxScale(), DEFAULT_SCALE);
+                GameplayConfig.minScale(), GameplayConfig.maxScale(), GameplayConfig.defaultScale());
         this.height = clamp(settings.height(),
-                GameplayConfig.minHeight(), GameplayConfig.maxHeight(), 0.0F);
+                GameplayConfig.minHeight(), GameplayConfig.maxHeight(), GameplayConfig.minHeight());
         this.shell = shellFromId(settings.shell());
         this.facing = settings.facing();
         this.markUpdated();

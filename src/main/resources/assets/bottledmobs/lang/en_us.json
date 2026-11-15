@@ -128,6 +128,8 @@
     "tooltip.bottledmobs.height": "Height: %s",
     "message.bottledmobs.uncapturable": "This creature cannot be captured",
     "message.bottledmobs.no_space": "No space to release this mob",
+    "message.bottledmobs.capture_failed": "This creature could not be saved completely; capture canceled",
+    "message.bottledmobs.release_failed": "Release failed; the creature is still stored in the jar",
     "command.bottledmobs.give.not_living": "Only living creatures can be bottled",
     "command.bottledmobs.give.success": "Gave %2$s player(s) a %1$s jar",
     "advancements.bottledmobs.first_bottle.title": "First Bottle",

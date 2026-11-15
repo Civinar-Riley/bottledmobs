@@ -26,6 +26,8 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.entity.PartEntity;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,19 +54,24 @@ public class BottledMobItem extends BlockItem {
         if (!mob.isEmpty() && !player.isShiftKeyDown()) {
             if (level instanceof ServerLevel serverLevel) {
                 Entity entity = MobNbt.create(mob.entityData(), serverLevel);
-                if (entity != null) {
+                if (entity == null) {
+                    player.displayClientMessage(
+                            Component.translatable("message.bottledmobs.release_failed"), true);
+                } else {
                     Vec3 spot = context.getClickLocation();
-                    if (MobNbt.findFreeSpot(serverLevel, entity, spot, player.getYRot())) {
-                        serverLevel.addFreshEntityWithPassengers(entity);
+                    if (!MobNbt.findFreeSpot(serverLevel, entity, spot, player.getYRot())) {
+                        player.displayClientMessage(
+                                Component.translatable("message.bottledmobs.no_space"), true);
+                    } else if (!MobNbt.addToLevel(serverLevel, entity)) {
+                        player.displayClientMessage(
+                                Component.translatable("message.bottledmobs.release_failed"), true);
+                    } else {
                         stack.set(BottledMobs.STORED_MOB.get(), StoredMob.EMPTY);
                         serverLevel.playSound(null, spot.x, spot.y, spot.z,
                                 SoundEvents.BOTTLE_EMPTY, SoundSource.PLAYERS, 1.0F, 1.0F);
                         serverLevel.sendParticles(ParticleTypes.POOF,
                                 spot.x, spot.y + 0.5, spot.z,
                                 8, 0.25, 0.5, 0.25, 0.01);
-                    } else {
-                        player.displayClientMessage(
-                                Component.translatable("message.bottledmobs.no_space"), true);
                     }
                 }
             }
@@ -94,11 +101,35 @@ public class BottledMobItem extends BlockItem {
         return capture(player, entity, InteractionHand.MAIN_HAND);
     }
 
+    public static void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
+        if ((event.getTarget() instanceof LivingEntity || event.getTarget() instanceof PartEntity<?>)
+                && event.getItemStack().getItem() instanceof BottledMobItem item
+                && item.capture(event.getEntity(), event.getTarget(), event.getHand())) {
+            event.setCancellationResult(InteractionResult.sidedSuccess(event.getLevel().isClientSide));
+            event.setCanceled(true);
+        }
+    }
+
+    public static void onEntityInteractSpecific(PlayerInteractEvent.EntityInteractSpecific event) {
+        if ((event.getTarget() instanceof LivingEntity || event.getTarget() instanceof PartEntity<?>)
+                && event.getItemStack().getItem() instanceof BottledMobItem item
+                && item.capture(event.getEntity(), event.getTarget(), event.getHand())) {
+            event.setCancellationResult(InteractionResult.sidedSuccess(event.getLevel().isClientSide));
+            event.setCanceled(true);
+        }
+    }
+
     /**
      * @return true when the interaction was handled by this item and should not
      * continue to vanilla behaviour.
      */
-    private boolean capture(Player player, Entity target, InteractionHand hand) {
+    boolean capture(Player player, Entity target, InteractionHand hand) {
+        while (target instanceof PartEntity<?> part) {
+            target = part.getParent();
+        }
+        if (target instanceof Player || player.isSpectator()) {
+            return false;
+        }
         ItemStack stack = player.getItemInHand(hand);
         if (!stack.is(this)) {
             return false;
@@ -144,6 +175,11 @@ public class BottledMobItem extends BlockItem {
         }
 
         CompoundTag data = MobNbt.save(target);
+        if (data == null) {
+            player.displayClientMessage(
+                    Component.translatable("message.bottledmobs.capture_failed"), true);
+            return true;
+        }
         EntityType<?> capturedType = target.getType();
         String entityId = BuiltInRegistries.ENTITY_TYPE.getKey(capturedType).toString();
         String customName = target.hasCustomName() && target.getCustomName() != null

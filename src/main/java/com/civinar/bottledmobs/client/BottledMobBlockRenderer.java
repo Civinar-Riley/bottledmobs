@@ -30,6 +30,7 @@ import java.util.WeakHashMap;
 public class BottledMobBlockRenderer implements BlockEntityRenderer<BottledMobBlockEntity> {
 
     private static final float SPIN_SPEED = 1.5F;
+    private static final int BUBBLE_INTERVAL = 20;
     /** Upper bound for the culling box so a huge scaled mob cannot disable culling. */
     private static final double MAX_EXTENT = 64.0D;
     private static final Map<Direction, Quaternionf> FACING_ROTATIONS = new EnumMap<>(Direction.class);
@@ -46,6 +47,7 @@ public class BottledMobBlockRenderer implements BlockEntityRenderer<BottledMobBl
     private final EntityRenderDispatcher entityRenderer;
     private final BlockRenderDispatcher blockRenderer;
     private final Map<BottledMobBlockEntity, DisplayData> cache = new WeakHashMap<>();
+    private final Map<BottledMobBlockEntity, Long> bubblePeriods = new WeakHashMap<>();
 
     public BottledMobBlockRenderer(BlockEntityRendererProvider.Context context) {
         this.entityRenderer = Minecraft.getInstance().getEntityRenderDispatcher();
@@ -98,6 +100,8 @@ public class BottledMobBlockRenderer implements BlockEntityRenderer<BottledMobBl
         if (data.water()) {
             JarWaterRenderer.render(pose, buffer, light);
             this.spawnBubbles(jar);
+        } else {
+            this.bubblePeriods.remove(jar);
         }
 
         BlockState shell = jar.getShellState();
@@ -118,13 +122,26 @@ public class BottledMobBlockRenderer implements BlockEntityRenderer<BottledMobBl
 
     private void spawnBubbles(BottledMobBlockEntity jar) {
         Level level = jar.getLevel();
-        if (level == null || !level.isClientSide || level.random.nextFloat() > 0.02F) {
+        if (level == null || !level.isClientSide) {
             return;
         }
-        double x = jar.getBlockPos().getX() + 0.35 + level.random.nextDouble() * 0.3;
-        double y = jar.getBlockPos().getY() + 0.25 + level.random.nextDouble() * 0.35;
-        double z = jar.getBlockPos().getZ() + 0.35 + level.random.nextDouble() * 0.3;
-        level.addParticle(ParticleTypes.BUBBLE, x, y, z, 0.0, 0.01, 0.0);
+        BlockPos pos = jar.getBlockPos();
+        // Stagger jars, but keep the rate at one pop per 20 game ticks at any FPS.
+        long period = Math.floorDiv(level.getGameTime() + Math.floorMod(pos.asLong(), BUBBLE_INTERVAL),
+                BUBBLE_INTERVAL);
+        Long previous = this.bubblePeriods.put(jar, period);
+        if (Minecraft.getInstance().isPaused() || !level.tickRateManager().runsNormally()
+                || previous == null || period <= previous || period - previous > 1) {
+            // Establish a fresh baseline on first render or after time away. Never
+            // replay missed periods, including periods first seen while paused.
+            return;
+        }
+        double x = pos.getX() + 0.35 + level.random.nextDouble() * 0.3;
+        double y = pos.getY() + 10.5 / 16.0;
+        double z = pos.getZ() + 0.35 + level.random.nextDouble() * 0.3;
+        // The rendered water is not a fluid. BUBBLE_POP lasts four ticks without
+        // checking fluid state, giving a brief pop at the jar's water surface.
+        level.addParticle(ParticleTypes.BUBBLE_POP, x, y, z, 0.0, 0.01, 0.0);
     }
 
     /**

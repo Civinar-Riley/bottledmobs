@@ -128,6 +128,8 @@
     "tooltip.bottledmobs.height": "高度：%s",
     "message.bottledmobs.uncapturable": "該生物無法被捕獲",
     "message.bottledmobs.no_space": "空間不足，無法釋放",
+    "message.bottledmobs.capture_failed": "無法完整儲存該生物，捕獲已取消",
+    "message.bottledmobs.release_failed": "釋放失敗，生物仍保存在瓶中",
     "command.bottledmobs.give.not_living": "只能封裝生物",
     "command.bottledmobs.give.success": "已向 %2$s 名玩家發放 %1$s 罐",
     "advancements.bottledmobs.first_bottle.title": "第一瓶",

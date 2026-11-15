@@ -6,6 +6,8 @@ import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 
+import javax.annotation.Nullable;
+
 /**
  * Renders a stored creature together with every rider it was captured with.
  *
@@ -16,33 +18,48 @@ import net.minecraft.world.entity.LivingEntity;
  */
 public final class JarEntityRenderer {
 
+    /** Only accessed on the client render thread; nested renders restore the previous entity. */
+    @Nullable
+    private static Entity renderingEntity;
+
     private JarEntityRenderer() {
+    }
+
+    static boolean isRendering(Entity entity) {
+        return renderingEntity == entity;
     }
 
     public static void render(Entity root, EntityRenderDispatcher dispatcher, PoseStack pose,
                               MultiBufferSource buffer, int light, float partialTick) {
-        dispatcher.render(root, 0.0, 0.0, 0.0, 0.0F, partialTick, pose, buffer, light);
+        Entity previous = renderingEntity;
+        renderingEntity = root;
+        try {
+            dispatcher.render(root, 0.0, 0.0, 0.0, 0.0F, partialTick, pose, buffer, light);
+        } finally {
+            renderingEntity = previous;
+        }
         for (Entity passenger : root.getPassengers()) {
             root.positionRider(passenger);
             double dx = passenger.getX() - root.getX();
             double dy = passenger.getY() - root.getY();
             double dz = passenger.getZ() - root.getZ();
             pose.pushPose();
-            pose.translate(dx, dy, dz);
-            render(passenger, dispatcher, pose, buffer, light, partialTick);
-            pose.popPose();
+            try {
+                pose.translate(dx, dy, dz);
+                render(passenger, dispatcher, pose, buffer, light, partialTick);
+            } finally {
+                pose.popPose();
+            }
         }
     }
 
     /**
-     * Clears the vanilla name tag and zeroes the rotations of the whole group so
-     * the jar's own label is the only name shown. Aquatic groups are marked as
-     * being in water so vanilla fish renderers keep them upright instead of
-     * tipping them onto their side.
+     * Zeroes the rotations of the whole group. Names are retained for vanilla's
+     * name-based appearances; ClientSetup hides name tags only during jar renders.
+     * Aquatic groups are marked as being in water so vanilla fish renderers keep
+     * them upright instead of tipping them onto their side.
      */
     public static void prepare(Entity entity, boolean inWater) {
-        entity.setCustomName(null);
-        entity.setCustomNameVisible(false);
         resetRotations(entity);
         if (inWater) {
             markInWater(entity);

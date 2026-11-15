@@ -120,13 +120,15 @@ public final class MobInfo {
 
     /**
      * Display name for a stored group. The root keeps its own name (custom name or
-     * species), then each rider is appended after a separator. Chicken jockeys and
-     * spider jockeys use a dedicated name instead of the generic composition.
+     * species), then each rider is appended after a separator. Unnamed chicken
+     * jockeys and spider jockeys use a dedicated name instead of the generic composition.
      */
     public static Component groupName(StoredMob mob) {
-        Optional<Component> special = jockeyName(mob);
-        if (special.isPresent()) {
-            return special.get();
+        if (mob.customName().isEmpty()) {
+            Optional<Component> special = jockeyName(mob);
+            if (special.isPresent()) {
+                return special.get();
+            }
         }
         List<CompoundTag> parts = selfAndPassengers(mob.dataView());
         MutableComponent name = rootName(mob, parts.get(0));

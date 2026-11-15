@@ -52,7 +52,7 @@ Minecraft 1.21.1 · NeoForge 21.1.252 · Java 21
 
 - 命名牌右键已放置的罐子，改的是瓶内生物的名字；物品名、Tooltip、罐子上方浮动名牌和放出后的生物都会同步。生存模式消耗命名牌，创造模式不消耗。
 - 变种从生物 NBT 读取，内置规则覆盖美西螈、猫、狐狸、鹦鹉、兔子、羊、潜影贝、马、羊驼、哞菇、熊猫、青蛙、史莱姆/岩浆怪、村民职业和狼变种。物品名显示物种与变种，Tooltip 另列物种、年龄、水生/发光状态。
-- 鳕鱼、鲑鱼、热带鱼、河豚、鱿鱼、发光鱿鱼、美西螈、蝌蚪、海龟、海豚、守卫者、远古守卫者和青蛙在默认玻璃罐中显示水体与低频气泡；自定义外壳和玩偶模式不显示水。
+- 鳕鱼、鲑鱼、热带鱼、河豚、鱿鱼、发光鱿鱼、美西螈、蝌蚪、海龟、海豚、守卫者、远古守卫者和青蛙在默认玻璃罐中显示水体与低频水面破泡；自定义外壳和玩偶模式不显示水。
 - 烈焰人、岩浆怪、发光鱿鱼、悦灵、恼鬼和监守者会按内置规则发出方块光。
 - 变种与发光规则都是内置 JSON（`data/bottledmobs/bottledmobs/variants/`、`.../glow/glow.json`），客户端/服务端从 mod jar 加载；数据包热改不在支持范围。
 
@@ -93,9 +93,9 @@ G G
 
 ## 安装
 
-- Minecraft **1.21.1** + NeoForge **21.1.252**（21.1.x 系列）
+- Minecraft **1.21.1** + NeoForge **21.1.252 或更高的 21.1.x 版本**
 - 客户端与服务端都需要安装
-- 从 [Releases](https://github.com/Civinar-Riley/bottledmobs/releases) 下载 `bottledmobs-neoforge1.21.1-1.4.5.jar`
+- 从 [Releases](https://github.com/Civinar-Riley/bottledmobs/releases) 下载对应版本的 `bottledmobs-neoforge1.21.1-<版本号>.jar`
 - 把 jar 放进 `mods` 文件夹
 
 ## 配置
@@ -128,7 +128,7 @@ G G
     heightStep = 0.0625
 ```
 
-缩放允许 0.01–16.0，高度允许 0–4.0。`min` 写得比 `max` 大时会自动互换。
+缩放允许 0.01–16.0，高度允许 0–4.0。`min` 写得比 `max` 大时会自动互换。已放置罐子会随服务端配置更新到允许范围，重载存档也会应用当前限制。
 
 ```toml
 [interaction]
@@ -160,6 +160,14 @@ G G
 ```
 
 产物位于 `build/libs/bottledmobs-neoforge1.21.1-<版本号>.jar`。
+
+服务端回归测试：
+
+```bash
+./gradlew runGameTestServer
+```
+
+测试源与模板位于 `src/gametest/`，不打入发布 JAR。
 
 ## 授权
 

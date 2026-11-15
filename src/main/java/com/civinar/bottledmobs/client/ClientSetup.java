@@ -4,8 +4,11 @@ import com.civinar.bottledmobs.BottledMobs;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RenderNameTagEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.util.TriState;
 
 public final class ClientSetup {
 
@@ -15,6 +18,13 @@ public final class ClientSetup {
     public static void init(IEventBus modBus) {
         modBus.addListener(ClientSetup::registerRenderers);
         modBus.addListener(ClientSetup::registerClientExtensions);
+        NeoForge.EVENT_BUS.addListener(ClientSetup::renderNameTag);
+    }
+
+    private static void renderNameTag(RenderNameTagEvent event) {
+        if (JarEntityRenderer.isRendering(event.getEntity())) {
+            event.setCanRender(TriState.FALSE);
+        }
     }
 
     private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {

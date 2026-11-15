@@ -132,6 +132,8 @@ public final class BottledMobs {
 
         modBus.addListener(this::registerPayloads);
         NeoForge.EVENT_BUS.addListener(BottledMobsCommand::register);
+        NeoForge.EVENT_BUS.addListener(BottledMobItem::onEntityInteract);
+        NeoForge.EVENT_BUS.addListener(BottledMobItem::onEntityInteractSpecific);
 
         VariantRules.loadBuiltin();
         GlowRules.loadBuiltin();

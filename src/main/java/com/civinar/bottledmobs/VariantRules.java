@@ -6,12 +6,14 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.NumericTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.animal.Panda;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,8 +26,8 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Data-driven display variants. Each rule matches an NBT path/value on a
- * captured entity and supplies a translation key for the label.
+ * Data-driven display variants. Each rule matches an NBT path/value or a decoded
+ * display value on a captured entity and supplies a translation key for the label.
  */
 public final class VariantRules {
 
@@ -106,7 +108,7 @@ public final class VariantRules {
             return Optional.empty();
         }
         for (Rule rule : list) {
-            Tag tag = getPath(data, rule.path());
+            Tag tag = getDisplayValue(data, type.get(), rule.path());
             if (tag != null && rule.matches(tag)) {
                 return Optional.of(Component.translatable(rule.translation()));
             }
@@ -142,6 +144,27 @@ public final class VariantRules {
             throw new IllegalArgumentException("Blank field " + key);
         }
         return value;
+    }
+
+    /**
+     * Horse and panda rules use Variant for the displayed colour or phenotype.
+     * Decode these values without changing the stored entity data.
+     */
+    private static Tag getDisplayValue(CompoundTag data, EntityType<?> type, String path) {
+        if (path.equals("Variant")) {
+            if (type == EntityType.HORSE) {
+                return data.contains("Variant", Tag.TAG_ANY_NUMERIC)
+                        ? IntTag.valueOf(data.getInt("Variant") & 0xFF)
+                        : null;
+            }
+            if (type == EntityType.PANDA) {
+                Panda.Gene main = Panda.Gene.byName(data.getString("MainGene"));
+                Panda.Gene hidden = Panda.Gene.byName(data.getString("HiddenGene"));
+                Panda.Gene variant = main.isRecessive() && main != hidden ? Panda.Gene.NORMAL : main;
+                return StringTag.valueOf(variant.getSerializedName());
+            }
+        }
+        return getPath(data, path);
     }
 
     private static Tag getPath(CompoundTag data, String path) {

@@ -1,13 +1,16 @@
 package com.civinar.bottledmobs;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 
 public final class MobNbt {
@@ -33,22 +36,63 @@ public final class MobNbt {
             new Vec3(-1.0D, 1.0D, 1.0D), new Vec3(-1.0D, 1.0D, -1.0D));
 
     /**
-     * Moves {@code entity} to the first position around {@code preferred} whose
-     * bounding box does not collide with blocks, so a mob is never released inside
-     * a wall. When every candidate is blocked the entity is left wherever the last
-     * attempt put it and the caller should keep the mob bottled.
-     *
-     * @return true when a free position was found and the entity moved to it
+     * Moves the whole group to the first loaded, unobstructed position around
+     * {@code preferred}. If every candidate is blocked, keep the mob bottled.
      */
     public static boolean findFreeSpot(ServerLevel level, Entity entity, Vec3 preferred, float yaw) {
+        List<Entity> members = entity.getSelfAndPassengers().toList();
         for (Vec3 offset : SPAWN_OFFSETS) {
             entity.absMoveTo(preferred.x + offset.x, preferred.y + offset.y,
                     preferred.z + offset.z, yaw, 0.0F);
-            if (level.noCollision(entity, entity.getBoundingBox())) {
+            positionPassengers(entity);
+            if (members.stream().allMatch(member -> hasSpace(level, member))) {
                 return true;
             }
         }
         return false;
+    }
+
+    private static void positionPassengers(Entity entity) {
+        entity.setOldPosAndRot();
+        for (Entity passenger : entity.getPassengers()) {
+            entity.positionRider(passenger);
+            positionPassengers(passenger);
+        }
+    }
+
+    private static boolean hasSpace(ServerLevel level, Entity entity) {
+        AABB box = entity.getBoundingBox();
+        return box.minY >= level.getMinBuildHeight() && box.maxY <= level.getMaxBuildHeight()
+                && level.getWorldBorder().isWithinBounds(box)
+                && level.hasChunksAt(BlockPos.containing(box.minX, box.minY, box.minZ),
+                        BlockPos.containing(box.maxX, box.maxY, box.maxZ))
+                && level.noCollision(entity, box);
+    }
+
+    /**
+     * Adds every member or removes the members already added. The caller must
+     * only clear its stored data after this succeeds; join events can reject riders.
+     */
+    public static boolean addToLevel(ServerLevel level, Entity entity) {
+        List<Entity> members = entity.getSelfAndPassengers().toList();
+        List<Entity> added = new ArrayList<>();
+        boolean success = false;
+        try {
+            for (Entity member : members) {
+                if (!level.addFreshEntity(member)) {
+                    return false;
+                }
+                added.add(member);
+            }
+            success = true;
+            return true;
+        } finally {
+            if (!success) {
+                for (int index = added.size() - 1; index >= 0; index--) {
+                    added.get(index).discard();
+                }
+            }
+        }
     }
 
     @Nullable
@@ -56,17 +100,19 @@ public final class MobNbt {
         if (tag == null || tag.isEmpty()) {
             return null;
         }
-        if (EntityType.by(tag).isEmpty()) {
-            return null;
-        }
         try {
-            // loadEntityRecursive restores the root together with every passenger,
-            // wiring each rider onto its vehicle so the group displays and releases intact.
-            return EntityType.loadEntityRecursive(tag, level, entity -> entity);
+            Entity entity = EntityType.loadEntityRecursive(tag, level, member -> member);
+            // Vanilla skips missing types or rejected mounts. Never release only
+            // part of a stored group and then erase the passengers' data.
+            if (entity != null && entity.getSelfAndPassengers().count()
+                    == MobInfo.selfAndPassengers(tag).size()) {
+                return entity;
+            }
+            BottledMobs.LOGGER.warn("Could not restore every member of a captured group");
         } catch (Exception exception) {
             BottledMobs.LOGGER.warn("Could not restore a captured mob from its stored data", exception);
-            return null;
         }
+        return null;
     }
 
     /**
@@ -86,9 +132,18 @@ public final class MobNbt {
         }
     }
 
+    @Nullable
     public static CompoundTag save(Entity entity) {
-        CompoundTag tag = new CompoundTag();
-        entity.save(tag);
-        return tag;
+        try {
+            CompoundTag tag = new CompoundTag();
+            if (entity.save(tag) && MobInfo.selfAndPassengers(tag).size()
+                    == entity.getSelfAndPassengers().count()) {
+                return tag;
+            }
+            BottledMobs.LOGGER.warn("Could not save every member of the captured group {}", entity.getType());
+        } catch (Exception exception) {
+            BottledMobs.LOGGER.warn("Could not save a captured mob", exception);
+        }
+        return null;
     }
 }
